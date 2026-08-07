@@ -1,0 +1,35 @@
+name: Deploy no GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/noiva-inteligente-platform-l322hk]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # O site é estático (HTML/CSS/JS puro), então a raiz do repositório
+      # já é o artefato que vai para o Pages — não há build.
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
