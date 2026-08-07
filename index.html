@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#5b2340">
+  <meta name="description" content="Noiva Inteligente — transforme o seu orçamento em um plano de casamento executável.">
+  <title>Noiva Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+</head>
+<body>
+
+  <div id="app">
+    <!-- Onboarding -->
+    <section class="tela" id="tela-onboarding"></section>
+
+    <!-- Telas principais -->
+    <section class="tela" id="tela-plano"></section>
+    <section class="tela" id="tela-dashboard"></section>
+    <section class="tela" id="tela-orcamento"></section>
+    <section class="tela" id="tela-missoes"></section>
+    <section class="tela" id="tela-estrategias"></section>
+    <section class="tela" id="tela-assistente"></section>
+
+    <!-- Ferramentas -->
+    <section class="tela" id="tela-prioridades"></section>
+    <section class="tela" id="tela-fornecedores"></section>
+    <section class="tela" id="tela-cenarios"></section>
+    <section class="tela" id="tela-cronograma"></section>
+    <section class="tela" id="tela-calculadoras"></section>
+    <section class="tela" id="tela-documentos"></section>
+    <section class="tela" id="tela-modo7mil"></section>
+    <section class="tela" id="tela-perfil"></section>
+    <section class="tela" id="tela-config"></section>
+  </div>
+
+  <!-- Navegação inferior -->
+  <nav class="nav" id="nav" style="display:none"></nav>
+
+  <!-- Gaveta -->
+  <div class="gaveta-fundo" id="gaveta-fundo" onclick="fecharGaveta()"></div>
+  <div class="gaveta" id="gaveta">
+    <div class="gaveta-puxador"></div>
+    <div class="gaveta-topo">
+      <div>
+        <h3 id="gaveta-titulo"></h3>
+        <div class="card-sub" id="gaveta-sub"></div>
+      </div>
+      <button class="fechar" onclick="fecharGaveta()">✕</button>
+    </div>
+    <div class="gaveta-corpo" id="gaveta-corpo"></div>
+  </div>
+
+  <!-- Dados -->
+  <script src="assets/js/data-categorias.js"></script>
+  <script src="assets/js/data-estrategias.js"></script>
+  <script src="assets/js/data-missoes.js"></script>
+
+  <!-- Núcleo -->
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/engine.js"></script>
+  <script src="assets/js/assistente.js"></script>
+
+  <!-- Interface -->
+  <script src="assets/js/telas.js"></script>
+  <script src="assets/js/onboarding.js"></script>
+  <script src="assets/js/acoes.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
