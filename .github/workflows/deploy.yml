@@ -25,11 +25,10 @@ jobs:
 
       # O site é estático (HTML/CSS/JS puro), então a raiz do repositório
       # já é o artefato que vai para o Pages — não há build.
-      # enablement: true liga o GitHub Pages automaticamente na primeira
-      # execução, sem precisar configurar nada na interface do repositório.
+      # Requer que o Pages já esteja ativado uma única vez em
+      # Settings > Pages > Source: GitHub Actions. O GITHUB_TOKEN do
+      # workflow não tem permissão para criar o site do Pages sozinho.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

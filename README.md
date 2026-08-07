@@ -24,6 +24,17 @@ Há exportação e importação de backup em JSON dentro de **Configurações**.
 
 ---
 
+## Deploy
+
+O site é estático, então o workflow `.github/workflows/deploy.yml` publica a raiz do
+repositório no GitHub Pages a cada push — sem etapa de build.
+
+**Ativação, uma única vez:** `Settings` → `Pages` → em **Source**, escolher **GitHub Actions**.
+Depois disso, é só empurrar commits. O `GITHUB_TOKEN` do workflow consegue publicar, mas não
+consegue criar o site do Pages, por isso esse primeiro clique é manual.
+
+---
+
 ## O que o produto faz
 
 | Módulo | O que resolve |
