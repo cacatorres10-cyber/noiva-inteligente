@@ -1036,7 +1036,7 @@ const CATEGORIAS_ESTRATEGIA = [
 ];
 
 const NIVEIS_ECONOMIA = {
-  leve: { emoji: '🟢', nome: 'Economia leve', desc: 'Pouco impacto na experiência.' },
-  moderado: { emoji: '🟡', nome: 'Economia moderada', desc: 'Exige adaptação.' },
-  agressivo: { emoji: '🔴', nome: 'Economia agressiva', desc: 'Muda significativamente o formato do casamento.' },
+  leve: { emoji: '🟢', ponto: 'leve', nome: 'Economia leve', desc: 'Pouco impacto na experiência.' },
+  moderado: { emoji: '🟡', ponto: 'moderado', nome: 'Economia moderada', desc: 'Exige adaptação.' },
+  agressivo: { emoji: '🔴', ponto: 'agressivo', nome: 'Economia agressiva', desc: 'Muda significativamente o formato do casamento.' },
 };

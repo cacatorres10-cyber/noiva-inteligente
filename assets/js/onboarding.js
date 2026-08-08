@@ -29,7 +29,7 @@ const Onboarding = {
         id: 'intro',
         render: () => `
           <div style="text-align:center;padding:24px 6px 10px">
-            <div style="font-size:46px;margin-bottom:10px">💍</div>
+            ${ilustracaoCapa()}
             <h1 style="margin-bottom:10px">Vamos transformar o seu orçamento em um plano de casamento.</h1>
             <p style="color:var(--grafite);font-size:14.5px">
               Em poucos minutos eu monto a distribuição da sua verba, o cronograma, as primeiras ações
@@ -59,10 +59,10 @@ const Onboarding = {
         contexto: 'Se ainda estiver em aberto, a data vira uma ferramenta de negociação muito forte.',
         render: () => `
           <button class="opcao ${this.rascunho.dataDefinida ? 'ativo' : ''}" data-v="1" onclick="Onboarding.escolher(this)">
-            <span class="emoji">📅</span><span><strong>Sim, já temos data</strong><span class="desc">Vou montar o cronograma a partir dela</span></span>
+            <span class="opcao-ic">${icone("calendario", 20)}</span><span><strong>Sim, já temos data</strong><span class="desc">Vou montar o cronograma a partir dela</span></span>
           </button>
           <button class="opcao ${!this.rascunho.dataDefinida ? 'ativo' : ''}" data-v="0" onclick="Onboarding.escolher(this)">
-            <span class="emoji">🕊️</span><span><strong>Ainda não</strong><span class="desc">Tenho uma janela aproximada em mente</span></span>
+            <span class="opcao-ic">${icone("folha", 20)}</span><span><strong>Ainda não</strong><span class="desc">Tenho uma janela aproximada em mente</span></span>
           </button>`,
         valido: () => true,
         salvar: () => {
@@ -131,7 +131,7 @@ const Onboarding = {
             <p class="ajuda">Isso calibra as minhas estimativas. Não é um dado de mercado — é a sua leitura.</p>
             ${NIVEL_REGIAO.map(
               (n) => `<button class="opcao ${this.rascunho.nivelRegiao === n.id ? 'ativo' : ''}" data-v="${n.id}" onclick="Onboarding.escolher(this)">
-                <span class="emoji">${n.id === 'baixo' ? '🌾' : n.id === 'medio' ? '🏙️' : '🌆'}</span>
+                <span class="opcao-ic">${icone(n.id === 'baixo' ? 'folha' : n.id === 'medio' ? 'local' : 'diamante', 20)}</span>
                 <span><strong>${n.nome}</strong></span></button>`
             ).join('')}
           </div>`,
@@ -158,7 +158,7 @@ const Onboarding = {
             <span>10</span><span>400</span>
           </div>
           <div class="alerta info" style="margin-top:16px">
-            <span class="ic">💡</span>
+            <span class="ic">${icone("info", 16)}</span>
             <span>Casamentos intimistas concentram o orçamento em menos pessoas e costumam elevar a qualidade percebida de tudo.</span>
           </div>`,
         valido: () => true,
@@ -174,7 +174,7 @@ const Onboarding = {
         render: () =>
           PERIODOS.map(
             (p) => `<button class="opcao ${this.rascunho.periodo === p.id ? 'ativo' : ''}" data-v="${p.id}" onclick="Onboarding.escolher(this)">
-              <span class="emoji">${p.id === 'manha' ? '🌅' : p.id === 'tarde' ? '☀️' : '🌙'}</span>
+              <span class="opcao-ic">${icone(p.id === 'manha' ? 'amanhecer' : p.id === 'tarde' ? 'sol' : 'lua', 20)}</span>
               <span><strong>${p.nome}</strong><span class="desc">${
                 p.id === 'manha' ? 'Brunch, luz natural, consumo de bebida menor' : p.id === 'tarde' ? 'Almoço ou chá, clima leve' : 'Jantar completo e pista de dança'
               }</span></span></button>`
@@ -197,7 +197,7 @@ const Onboarding = {
             <label>Que padrão de execução combina com vocês?</label>
             ${PADRAO_EXECUCAO.map(
               (p) => `<button class="opcao ${this.rascunho.padrao === p.id ? 'ativo' : ''}" data-p="${p.id}" onclick="Onboarding.escolherPadrao(this)">
-                <span class="emoji">${p.id === 'baixo' ? '🌿' : p.id === 'medio' ? '⚖️' : '💎'}</span>
+                <span class="opcao-ic">${icone(p.id === 'baixo' ? 'folha' : p.id === 'medio' ? 'balanca' : 'diamante', 20)}</span>
                 <span><strong>${p.nome}</strong><span class="desc">${p.desc}</span></span></button>`
             ).join('')}
           </div>`,
@@ -317,7 +317,7 @@ const Onboarding = {
               </div>`
             )
             .join('')}
-          <div class="alerta info"><span class="ic">💛</span><span>Não precisa ser uma categoria. Pode ser "minha avó presente" ou "chegar sem dívida".</span></div>`,
+          <div class="alerta info"><span class="ic">${icone("coracao", 16)}</span><span>Não precisa ser uma categoria. Pode ser "minha avó presente" ou "chegar sem dívida".</span></div>`,
         valido: () => {
           const v = [0, 1, 2].map((i) => $('#ob-sonho-' + i).value.trim()).filter(Boolean);
           return v.length >= 1;
@@ -411,7 +411,7 @@ const Onboarding = {
       <div class="topo">
         <div class="topo-linha">
           <div class="marca">
-            <div class="marca-simbolo">💍</div>
+            <div class="marca-simbolo">${icone("anel", 18)}</div>
             <div class="marca-nome">Noiva Inteligente</div>
           </div>
           <div class="sub">${this.indice}/${passos.length - 1}</div>

@@ -75,7 +75,7 @@ const Assistente = {
       `Sua margem de segurança está em ${r.margemPct}% (${formatarMoeda(r.reserva)}), então o valor realmente distribuível é ${formatarMoeda(r.distribuivel)}.`,
     ];
     achados.forEach((a) => {
-      const marcador = a.nivel === 'alto' ? '⚠️' : a.nivel === 'medio' ? '•' : '✓';
+      const marcador = a.nivel === 'alto' ? '!' : a.nivel === 'medio' ? '•' : '✓';
       linhas.push(`${marcador} **${a.titulo}** — ${a.texto}`);
     });
     return this.bloco(linhas.join('\n\n'), [
@@ -107,7 +107,7 @@ const Assistente = {
     linhas.push('**Estratégias que se aplicam ao seu caso:**');
     estrategias.forEach((s) => {
       const n = NIVEIS_ECONOMIA[s.nivel];
-      linhas.push(`${n.emoji} **${s.titulo}** — economia estimada de ${s.economia.min}% a ${s.economia.max}% sobre ${s.economia.base}. ${s.impacto}`);
+      linhas.push(`**${s.titulo}** — economia estimada de ${s.economia.min}% a ${s.economia.max}% sobre ${s.economia.base}. ${s.impacto}`);
     });
     linhas.push('_Percentuais são estimativas de planejamento, não garantias de preço._');
 
@@ -177,14 +177,14 @@ const Assistente = {
     const cat = catId || 'outros';
     const d = Motor.detectarPrejuizo(cat, valor);
     const linhas = [`**Detector de prejuízo — ${d.categoria.nome}, ${formatarMoeda(valor)}**`];
-    d.sinais.forEach((s) => linhas.push(`${s.nivel === 'alto' ? '⚠️' : s.nivel === 'medio' ? '•' : '✓'} ${s.texto}`));
+    d.sinais.forEach((s) => linhas.push(`${s.nivel === 'alto' ? '!' : s.nivel === 'medio' ? '•' : '✓'} ${s.texto}`));
     if (d.checklist.length) {
       linhas.push('**Antes de assinar, confirme por escrito se está incluso:**');
       d.checklist.forEach((c) => linhas.push(`— ${c}`));
     }
     if (d.alternativas.length) {
       linhas.push('**Alternativas que preservam a função gastando menos:**');
-      d.alternativas.forEach((a) => linhas.push(`${NIVEIS_ECONOMIA[a.nivel].emoji} ${a.titulo} — ${a.solucao}`));
+      d.alternativas.forEach((a) => linhas.push(`${a.titulo} — ${a.solucao}`));
     }
     linhas.push('_Não tenho como dizer se esse preço é bom para a sua região. Posso comparar propostas se você cadastrar as opções em Fornecedores._');
     return this.bloco(linhas.join('\n\n'), [{ tipo: 'acao', texto: 'Cadastrar fornecedores e comparar', tela: 'fornecedores' }]);
@@ -256,7 +256,7 @@ const Assistente = {
       est > 7000
         ? `Isso está **acima** de R$7.000. Os ajustes de maior efeito, na ordem: reduzir convidados, mudar para período diurno, trocar o dia da semana e rever local, música e vestido.`
         : 'Isso está dentro da meta considerando as estimativas do app.',
-      '⚠️ **Os custos variam conforme cidade, número de convidados, data, fornecedores e escolhas. O Modo R$7 mil é uma meta de planejamento, não uma garantia de preço.**',
+      '**Atenção: os custos variam conforme cidade, número de convidados, data, fornecedores e escolhas. O Modo R$7 mil é uma meta de planejamento, não uma garantia de preço.**',
     ];
     return this.bloco(linhas.join('\n\n'), [
       { tipo: 'acao', texto: ativo ? 'Ver o plano no modo' : 'Ativar o Modo R$7 mil', tela: 'modo7mil' },
@@ -310,7 +310,7 @@ const Assistente = {
     const estr = Motor.estrategiasPara(catId).slice(0, 3);
 
     const linhas = [
-      `**${cat.icone} ${cat.nome}** — prioridade ${d.prioridade}/10`,
+      `**${cat.nome}** — prioridade ${d.prioridade}/10`,
       `Planejado: ${formatarMoeda(d.planejado)} (${((d.planejado / Math.max(1, r.total)) * 100).toFixed(0)}% do orçamento) · Contratado: ${formatarMoeda(d.contratado)} · Estimativa para o seu formato: ${formatarMoeda(d.estimativa)}.`,
       cat.dica,
     ];
@@ -320,7 +320,7 @@ const Assistente = {
     }
     if (estr.length) {
       linhas.push('**Estratégias para essa categoria:**');
-      estr.forEach((s) => linhas.push(`${NIVEIS_ECONOMIA[s.nivel].emoji} ${s.titulo} — ${s.economia.min}% a ${s.economia.max}% sobre ${s.economia.base} (estimativa)`));
+      estr.forEach((s) => linhas.push(`${s.titulo} — ${s.economia.min}% a ${s.economia.max}% sobre ${s.economia.base} (estimativa)`));
     }
     return this.bloco(linhas.join('\n\n'), [{ tipo: 'acao', texto: 'Ver estratégias', tela: 'estrategias' }]);
   },

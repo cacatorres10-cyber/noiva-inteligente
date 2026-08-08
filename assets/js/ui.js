@@ -52,23 +52,23 @@ function $$(sel, raiz) {
 /* ------------------------------------------------------ navegação */
 
 const TELAS_NAV = [
-  { id: 'dashboard', nome: 'Início', ic: '🏠' },
-  { id: 'orcamento', nome: 'Orçamento', ic: '💰' },
-  { id: 'missoes', nome: 'Missões', ic: '🎯' },
-  { id: 'estrategias', nome: 'Estratégias', ic: '📚' },
-  { id: 'assistente', nome: 'Assistente', ic: '💬' },
+  { id: 'dashboard', nome: 'Início', ic: 'inicio' },
+  { id: 'orcamento', nome: 'Orçamento', ic: 'orcamento' },
+  { id: 'missoes', nome: 'Missões', ic: 'missoes' },
+  { id: 'estrategias', nome: 'Estratégias', ic: 'estrategias' },
+  { id: 'assistente', nome: 'Assistente', ic: 'assistente' },
 ];
 
 const MENU_EXTRA = [
-  { id: 'prioridades', nome: 'Prioridades', ic: '⭐', desc: 'O que é inegociável para você' },
-  { id: 'fornecedores', nome: 'Fornecedores', ic: '🤝', desc: 'Cadastrar e comparar propostas' },
-  { id: 'cenarios', nome: 'Simulador de cenários', ic: '⚖️', desc: 'Comparar dois formatos de casamento' },
-  { id: 'cronograma', nome: 'Cronograma', ic: '🗓️', desc: 'O que fazer em cada fase' },
-  { id: 'calculadoras', nome: 'Calculadoras', ic: '🧮', desc: 'Quantidades, parcelas e poupança' },
-  { id: 'documentos', nome: 'Contratos e documentos', ic: '📄', desc: 'Registrar valores, prazos e multas' },
-  { id: 'modo7mil', nome: 'Modo R$7 mil', ic: '✨', desc: 'Meta de planejamento enxuto' },
-  { id: 'perfil', nome: 'Meus dados', ic: '👤', desc: 'Orçamento, data, convidados, estilo' },
-  { id: 'config', nome: 'Configurações', ic: '⚙️', desc: 'Margem de segurança, backup, reiniciar' },
+  { id: 'prioridades', nome: 'Prioridades', ic: 'estrela', desc: 'O que é inegociável para você' },
+  { id: 'fornecedores', nome: 'Fornecedores', ic: 'proposta', desc: 'Cadastrar e comparar propostas' },
+  { id: 'cenarios', nome: 'Simulador de cenários', ic: 'balanca', desc: 'Comparar dois formatos de casamento' },
+  { id: 'cronograma', nome: 'Cronograma', ic: 'calendario', desc: 'O que fazer em cada fase' },
+  { id: 'calculadoras', nome: 'Calculadoras', ic: 'calculadora', desc: 'Quantidades, parcelas e poupança' },
+  { id: 'documentos', nome: 'Contratos e documentos', ic: 'documentacao', desc: 'Registrar valores, prazos e multas' },
+  { id: 'modo7mil', nome: 'Modo R$7 mil', ic: 'raio', desc: 'Meta de planejamento enxuto' },
+  { id: 'perfil', nome: 'Meus dados', ic: 'pessoas', desc: 'Orçamento, data, convidados, estilo' },
+  { id: 'config', nome: 'Configurações', ic: 'engrenagem', desc: 'Margem de segurança, backup, reiniciar' },
 ];
 
 const App = {
@@ -110,7 +110,7 @@ function abrirMenu() {
   const html = MENU_EXTRA.map(
     (m) => `
     <button class="opcao" onclick="App.ir('${m.id}')">
-      <span class="emoji">${m.ic}</span>
+      <span class="menu-ic">${icone(m.ic, 20)}</span>
       <span><strong>${m.nome}</strong><span class="desc">${m.desc}</span></span>
     </button>`
   ).join('');
@@ -140,17 +140,59 @@ function componenteBarraOrcamento(r) {
 }
 
 function componenteAlerta(a) {
-  const ic = a.nivel === 'alto' ? '⚠️' : a.nivel === 'medio' ? '🔔' : a.nivel === 'ok' ? '✓' : 'ℹ️';
-  return `<div class="alerta ${a.nivel}"><span class="ic">${ic}</span><span>${escapar(a.texto || a.titulo)}</span></div>`;
+  const ic = a.nivel === 'alto' ? 'alerta' : a.nivel === 'medio' ? 'sino' : a.nivel === 'ok' ? 'ok' : 'info';
+  return `<div class="alerta ${a.nivel}"><span class="ic">${icone(ic, 17)}</span><span>${escapar(a.texto || a.titulo)}</span></div>`;
 }
 
-function componenteVazio(emoji, titulo, texto, botao) {
+function componenteVazio(nomeIcone, titulo, texto, botao) {
   return `<div class="vazio">
-    <span class="emoji">${emoji}</span>
+    <span class="vazio-ic">${icone(nomeIcone, 34)}</span>
     <div style="font-family:var(--display);font-size:18px;color:var(--carvao);margin-bottom:6px">${escapar(titulo)}</div>
     <p style="font-size:13px">${escapar(texto)}</p>
     ${botao || ''}
   </div>`;
+}
+
+/* Avaliação pessoal em estrelas desenhadas (preenchidas e vazias) */
+function estrelas(n) {
+  const total = 5;
+  let html = '<span class="estrelas">';
+  for (let i = 1; i <= total; i++) {
+    html += `<span class="${i <= n ? 'cheia' : 'vazia'}">${icone('estrela', 12)}</span>`;
+  }
+  return html + '</span>';
+}
+
+/* ------------------------------------------------------- movimento */
+
+/*
+ * Anima a contagem de um número. Só roda quando a pessoa não pediu
+ * "reduzir movimento" no sistema — acessibilidade antes de efeito.
+ */
+function animarNumeros(raiz) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  $$('[data-contar]', raiz || document).forEach((el) => {
+    const alvo = Number(el.dataset.contar) || 0;
+    const prefixo = el.dataset.prefixo || '';
+    const duracao = 620;
+    const inicio = performance.now();
+    const passo = (agora) => {
+      const t = Math.min(1, (agora - inicio) / duracao);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = prefixo + formatarMoeda(Math.round(alvo * eased));
+      if (t < 1) requestAnimationFrame(passo);
+    };
+    requestAnimationFrame(passo);
+  });
+}
+
+/* Entrada escalonada dos cards, para a tela "montar" em vez de aparecer pronta */
+function animarEntrada(raiz) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const alvos = $$('.conteudo > .card, .conteudo > .secao, .conteudo > .grade-2, .conteudo > .grade-3', raiz || document);
+  alvos.slice(0, 14).forEach((el, i) => {
+    el.style.animation = `sobe .42s cubic-bezier(.22,1,.36,1) ${i * 45}ms both`;
+  });
 }
 
 function selectOpcoes(lista, valor, chaveId, chaveNome) {

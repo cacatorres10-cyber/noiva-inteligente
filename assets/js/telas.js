@@ -6,6 +6,19 @@ const Telas = {
     if (!alvo || typeof this[id] !== 'function') return;
     alvo.innerHTML = this[id](params || {});
     if (typeof this['pos_' + id] === 'function') this['pos_' + id](params || {});
+    animarEntrada(alvo);
+    animarNumeros(alvo);
+    this.animarBarras(alvo);
+  },
+
+  /* As barras nascem em zero e crescem — o progresso fica legível como movimento */
+  animarBarras(raiz) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    $$('.barra span, .barra-cat span', raiz).forEach((el) => {
+      const largura = el.style.width;
+      el.style.width = '0%';
+      requestAnimationFrame(() => requestAnimationFrame(() => (el.style.width = largura)));
+    });
   },
 
   cabecalho(titulo, sub, comMenu) {
@@ -16,7 +29,7 @@ const Telas = {
             <div class="sub">${escapar(sub || '')}</div>
             <h2>${escapar(titulo)}</h2>
           </div>
-          ${comMenu === false ? '' : '<button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">⋯</button>'}
+          ${comMenu === false ? '' : '<button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">${icone("menu",18)}</button>'}
         </div>
       </div>`;
   },
@@ -54,14 +67,14 @@ const Telas = {
         <div class="card card-destaque">
           <div class="rotulo">O que eu vou proteger</div>
           <div style="margin-top:8px">
-            ${sonhos.map((s) => `<div style="font-family:var(--display);font-size:17px;color:var(--vinho);margin-bottom:4px">💛 ${escapar(s)}</div>`).join('')}
+            ${sonhos.map((s) => `<div style="font-family:var(--display);font-size:17px;color:var(--vinho);margin-bottom:4px"><span class="sonho-ic">${icone("coracao",15)}</span>${escapar(s)}</div>`).join('')}
           </div>
           <p class="card-sub" style="margin:10px 0 0">Enquanto existir alternativa em outra categoria, eu não vou sugerir cortar nada disso.</p>
         </div>` : ''}
 
         <div class="card">
           <div class="rotulo">Orçamento recomendado</div>
-          <div class="numero-grande">${formatarMoeda(r.total)}</div>
+          <div class="numero-grande" data-contar="${r.total}">${formatarMoeda(r.total)}</div>
           <p class="card-sub" style="margin-top:4px">
             Reservando ${r.margemPct}% de margem de segurança (${formatarMoeda(r.reserva)}),
             sobram <strong>${formatarMoeda(r.distribuivel)}</strong> para distribuir entre as categorias.
@@ -86,22 +99,22 @@ const Telas = {
           <div class="secao-titulo">Formato sugerido</div>
           <div class="card compacto">
             <div class="lista-item">
-              <span class="icone">👥</span>
+              <span class="icone">${icone("pessoas",18)}</span>
               <div class="corpo"><div class="nome">${p.convidados} convidados</div>
               <div class="meta">Estimativa do formato completo: ${formatarMoeda(est)}</div></div>
             </div>
             <div class="lista-item">
-              <span class="icone">🕐</span>
+              <span class="icone">${icone("relogio",18)}</span>
               <div class="corpo"><div class="nome">${Assistente.nomeDia()}, ${Assistente.nomePeriodo()}</div>
               <div class="meta">${(PERIODOS.find((x) => x.id === p.periodo) || {}).nome} · padrão ${Assistente.nomePadrao()}</div></div>
             </div>
             <div class="lista-item">
-              <span class="icone">✨</span>
+              <span class="icone">${icone("decoracao",18)}</span>
               <div class="corpo"><div class="nome">Estilo ${(ESTILOS.find((x) => x.id === p.estilo) || {}).nome}</div>
               <div class="meta">${escapar(p.cidade || 'região não informada')}</div></div>
             </div>
           </div>
-          ${est > r.total ? `<div class="alerta medio"><span class="ic">🔔</span><span>A estimativa do formato atual (${formatarMoeda(est)}) está acima do orçamento (${formatarMoeda(r.total)}). Reduzir convidados, mudar o período ou o dia da semana são os ajustes de maior efeito.</span></div>` : ''}
+          ${est > r.total ? `<div class="alerta medio"><span class="ic">${icone("sino",16)}</span><span>A estimativa do formato atual (${formatarMoeda(est)}) está acima do orçamento (${formatarMoeda(r.total)}). Reduzir convidados, mudar o período ou o dia da semana são os ajustes de maior efeito.</span></div>` : ''}
         </div>
 
         <div class="secao">
@@ -111,7 +124,7 @@ const Telas = {
             ${ordenadas.map((d) => `
               <div style="padding:9px 0;border-bottom:1px solid var(--linha)">
                 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-                  <span style="font-size:14px">${d.cat.icone} ${d.cat.nome} <span style="color:var(--neblina);font-size:11.5px">· ${d.prioridade}/10</span></span>
+                  <span style="font-size:14px"><span class="cat-nome">${icone(d.cat.icone, 16)}${d.cat.nome}</span> <span style="color:var(--neblina);font-size:11.5px">· ${d.prioridade}/10</span></span>
                   <strong style="font-family:var(--display);font-size:15px;white-space:nowrap">${formatarMoeda(d.planejado)}</strong>
                 </div>
                 <div class="barra-cat"><span style="width:${pct(d.planejado, r.total)}%"></span></div>
@@ -141,7 +154,7 @@ const Telas = {
               <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
                 <div><div class="card-titulo">${escapar(m.titulo)}</div>
                 <div class="card-sub">${escapar(m.motivo)}</div></div>
-                <span style="color:var(--neblina)">›</span>
+                <span style="color:var(--neblina)">${icone("seta",15)}</span>
               </div>
               ${eco ? `<div class="pill-linha"><span class="chip tag-ouro">Potencial: ${formatarMoeda(eco.min)} – ${formatarMoeda(eco.max)}</span></div>` : ''}
             </div>`;
@@ -177,10 +190,10 @@ const Telas = {
       <div class="topo">
         <div class="topo-linha">
           <div class="marca">
-            <div class="marca-simbolo">💍</div>
+            <div class="marca-simbolo">${icone("anel",18)}</div>
             <div class="marca-nome">Noiva Inteligente</div>
           </div>
-          <button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">⋯</button>
+          <button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">${icone("menu",18)}</button>
         </div>
         <div style="margin-top:16px;position:relative">
           <div class="sub">Seu casamento</div>
@@ -198,7 +211,7 @@ const Telas = {
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:baseline">
             <div><div class="rotulo">Orçamento</div>
-            <div class="numero-grande">${formatarMoeda(r.total)}</div></div>
+            <div class="numero-grande" data-contar="${r.total}">${formatarMoeda(r.total)}</div></div>
             <button class="btn btn-secundario btn-mini" onclick="App.ir('orcamento')">Detalhar</button>
           </div>
           <div style="margin-top:14px">${componenteBarraOrcamento(r)}</div>
@@ -212,7 +225,7 @@ const Telas = {
         <div class="grade-2">
           <div class="mini-stat">
             <div class="rotulo">Economia potencial</div>
-            <div class="valor positivo">${formatarMoeda(eco.potencial)}</div>
+            <div class="valor positivo" data-contar="${eco.potencial}">${formatarMoeda(eco.potencial)}</div>
             <div style="font-size:11px;color:var(--grafite)">estimada, ainda não confirmada</div>
           </div>
           <div class="mini-stat">
@@ -233,10 +246,10 @@ const Telas = {
           <div class="card card-destaque" onclick="Telas.abrirMissao('${missao.id}')" style="cursor:pointer">
             <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
               <div>
-                <div class="card-titulo">🎯 ${escapar(missao.titulo)}</div>
+                <div class="card-titulo"><span class="titulo-ic">${icone("alvo",17)}</span>${escapar(missao.titulo)}</div>
                 <div class="card-sub">${escapar(missao.objetivo)}</div>
               </div>
-              <span style="color:var(--neblina)">›</span>
+              <span style="color:var(--neblina)">${icone("seta",15)}</span>
             </div>
             ${(() => { const e = Motor.economiaMissao(missao); return e ? `<div class="pill-linha"><span class="chip tag-ouro">Potencial: ${formatarMoeda(e.min)} – ${formatarMoeda(e.max)}</span><span class="chip tag">${missao.tempo}</span></div>` : ''; })()}
           </div>
@@ -247,12 +260,12 @@ const Telas = {
           <div class="secao-titulo">Próximo prazo</div>
           <div class="card compacto" onclick="App.ir('cronograma')" style="cursor:pointer">
             <div class="lista-item" style="padding:0">
-              <span class="icone">🗓️</span>
+              <span class="icone">${icone("calendario",18)}</span>
               <div class="corpo">
                 <div class="nome">${escapar(tarefa.titulo)}</div>
                 <div class="meta">${tarefa.atrasada ? '<span style="color:var(--vermelho)">Atrasada</span> — ' : ''}fase de ${tarefa.mesInicio} meses antes</div>
               </div>
-              <span style="color:var(--neblina)">›</span>
+              <span style="color:var(--neblina)">${icone("seta",15)}</span>
             </div>
           </div>
         </div>` : ''}
@@ -261,11 +274,11 @@ const Telas = {
           <div class="secao-titulo">Atalhos</div>
           <div class="grade-2">
             <button class="card compacto" style="text-align:left;border:1px solid var(--linha);cursor:pointer;font-family:var(--corpo)" onclick="App.ir('cenarios')">
-              <div style="font-size:22px">⚖️</div><div style="font-weight:600;font-size:13.5px;margin-top:4px">Simular cenários</div>
+              <div class="atalho-ic">${icone("balanca",22)}</div><div style="font-weight:600;font-size:13.5px;margin-top:4px">Simular cenários</div>
               <div style="font-size:11.5px;color:var(--grafite)">Comparar dois formatos</div>
             </button>
             <button class="card compacto" style="text-align:left;border:1px solid var(--linha);cursor:pointer;font-family:var(--corpo)" onclick="App.ir('fornecedores')">
-              <div style="font-size:22px">🤝</div><div style="font-weight:600;font-size:13.5px;margin-top:4px">Comparar fornecedores</div>
+              <div class="atalho-ic">${icone("proposta",22)}</div><div style="font-weight:600;font-size:13.5px;margin-top:4px">Comparar fornecedores</div>
               <div style="font-size:11.5px;color:var(--grafite)">Preço + inclusos + condições</div>
             </button>
           </div>
@@ -316,7 +329,7 @@ const Telas = {
                 return `
                 <div style="padding:11px 0;border-bottom:1px solid var(--linha);cursor:pointer" onclick="Telas.abrirCategoria('${c.id}')">
                   <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-                    <span style="font-size:14.5px">${c.icone} ${c.nome}
+                    <span style="font-size:14.5px"><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span>
                       <span style="color:var(--neblina);font-size:11px">· prioridade ${d.prioridade}</span>
                     </span>
                     <span style="text-align:right;white-space:nowrap">
@@ -336,7 +349,7 @@ const Telas = {
             ${Store.estado.despesas.length
               ? Store.estado.despesas.map((d) => `
                 <div class="lista-item">
-                  <span class="icone">${Motor.categoria(d.categoria) ? Motor.categoria(d.categoria).icone : '💸'}</span>
+                  <span class="icone">${icone(Motor.categoria(d.categoria) ? Motor.categoria(d.categoria).icone : 'outros', 18)}</span>
                   <div class="corpo">
                     <div class="nome">${escapar(d.descricao)}</div>
                     <div class="meta">${Motor.categoria(d.categoria) ? Motor.categoria(d.categoria).nome : ''}${d.vencimento ? ' · vence ' + formatarData(d.vencimento) : ''}${d.parcelas > 1 ? ' · ' + d.parcelas + 'x' : ''}</div>
@@ -345,9 +358,9 @@ const Telas = {
                     <div class="valor">${formatarMoeda(d.valor)}</div>
                     <div style="font-size:11px;color:var(--grafite);text-align:right">pago ${formatarMoeda(d.pago || 0, true)}</div>
                   </div>
-                  <button class="fechar" style="width:26px;height:26px;font-size:12px" onclick="event.stopPropagation();Acoes.removerDespesa('${d.id}')">✕</button>
+                  <button class="fechar" style="width:26px;height:26px;font-size:12px" onclick="event.stopPropagation();Acoes.removerDespesa('${d.id}')">${icone("fechar",13)}</button>
                 </div>`).join('')
-              : componenteVazio('🧾', 'Nenhum gasto registrado', 'Cada gasto registrado passa pelo Detector de Prejuízo antes de entrar no seu plano.', '')}
+              : componenteVazio('recibo', 'Nenhum gasto registrado', 'Cada gasto registrado passa pelo Detector de Prejuízo antes de entrar no seu plano.', '')}
           </div>
         </div>
 
@@ -370,7 +383,7 @@ const Telas = {
         ${sonhos.length ? `
         <div class="card card-destaque">
           <div class="rotulo">Suas 3 coisas inegociáveis</div>
-          ${sonhos.map((s) => `<div style="font-family:var(--display);font-size:16px;color:var(--vinho);margin-top:4px">💛 ${escapar(s)}</div>`).join('')}
+          ${sonhos.map((s) => `<div style="font-family:var(--display);font-size:16px;color:var(--vinho);margin-top:4px"><span class="sonho-ic">${icone("coracao",15)}</span>${escapar(s)}</div>`).join('')}
         </div>` : ''}
 
         <div class="alerta info">
@@ -385,7 +398,7 @@ const Telas = {
           <div class="card compacto" style="opacity:${ativa ? 1 : 0.5}">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
               <div style="flex:1">
-                <div style="font-size:14.5px;font-weight:600">${c.icone} ${c.nome}</div>
+                <div style="font-size:14.5px;font-weight:600"><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span></div>
                 <div style="font-size:11.5px;color:var(--grafite)">
                   ${ativa ? `${formatarMoeda(d.planejado)} · ${pct(d.planejado, r.total).toFixed(0)}% do orçamento` : 'categoria desativada'}
                 </div>
@@ -422,28 +435,28 @@ const Telas = {
         <div class="pulo"></div>
 
         <div class="alerta info">
-          <span class="ic">⚖️</span>
+          <span class="ic">${icone("balanca",16)}</span>
           <span>Eu comparo <strong>preço + o que está incluso + custos extras + condições</strong>. Comparar só preço é como comparar dois contratos diferentes fingindo que são iguais.</span>
         </div>
 
         ${f.length === 0
-          ? componenteVazio('🤝', 'Nenhum fornecedor ainda', 'A regra que mais economiza dinheiro no casamento inteiro: 3 propostas escritas por categoria, com o mesmo briefing.', '')
+          ? componenteVazio('proposta', 'Nenhum fornecedor ainda', 'A regra que mais economiza dinheiro no casamento inteiro: 3 propostas escritas por categoria, com o mesmo briefing.', '')
           : Object.entries(porCat).map(([catId, lista]) => {
               const cat = Motor.categoria(catId);
               return `
               <div class="secao">
                 <div class="secao-titulo" style="font-size:16px">
-                  <span>${cat ? cat.icone + ' ' + cat.nome : escapar(catId)}</span>
+                  <span>${cat ? icone(cat.icone, 17) + cat.nome : escapar(catId)}</span>
                   ${lista.length >= 2 ? `<button class="btn btn-secundario btn-mini" onclick="Telas.abrirComparador('${catId}')">Comparar</button>` : ''}
                 </div>
                 ${lista.length < 3 ? `<p class="secao-desc">${3 - lista.length} proposta(s) a menos do que o ideal para negociar com base.</p>` : ''}
                 <div class="card compacto">
                   ${lista.map((x) => `
                     <div class="lista-item" style="cursor:pointer" onclick="Telas.abrirFornecedor('${x.id}')">
-                      <span class="icone">${x.contratado ? '✅' : '📋'}</span>
+                      <span class="icone">${x.contratado ? icone('ok',18) : icone('documentacao',18)}</span>
                       <div class="corpo">
                         <div class="nome">${escapar(x.nome)}</div>
-                        <div class="meta">${escapar(x.localizacao || '')}${x.avaliacao ? ' · ' + '★'.repeat(x.avaliacao) : ''}</div>
+                        <div class="meta">${escapar(x.localizacao || '')}${x.avaliacao ? ' · ' + estrelas(x.avaliacao) : ''}</div>
                       </div>
                       <div class="valor">${formatarMoeda(x.preco)}</div>
                     </div>`).join('')}
@@ -517,7 +530,7 @@ const Telas = {
             ${comp.afetadas.length
               ? comp.afetadas.map((c) => `
                 <div class="diff">
-                  <span>${c.icone} ${c.nome}</span>
+                  <span><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span></span>
                   <span>
                     <span style="color:var(--grafite);font-size:12px">${formatarMoeda(c.a, true)} → ${formatarMoeda(c.b, true)}</span>
                     <strong class="${c.dif < 0 ? 'menos' : 'mais'}" style="margin-left:8px">${c.dif < 0 ? '−' : '+'}${formatarMoeda(Math.abs(c.dif), true)}</strong>
@@ -541,18 +554,18 @@ const Telas = {
 
   impactoExperiencia(a, b) {
     const notas = [];
-    if (b.convidados < a.convidados) notas.push(['✔️', `${a.convidados - b.convidados} pessoas a menos — mais verba por convidado, mas exige conversas difíceis.`]);
-    if (b.convidados > a.convidados) notas.push(['⚠️', `${b.convidados - a.convidados} pessoas a mais — multiplica comida, bebida, convites e espaço.`]);
-    if (b.periodo !== a.periodo) notas.push(['🕐', `Mudança de período: muda o cardápio esperado, o consumo de bebida e a necessidade de iluminação.`]);
-    if (b.diaSemana !== a.diaSemana) notas.push(['📅', `Dia diferente costuma abrir margem de negociação, mas pode reduzir a presença de convidados.`]);
-    if (b.formatoComida !== a.formatoComida) notas.push(['🍽️', `Formato de comida diferente: confirme se a duração do evento combina com o que será servido.`]);
-    if (b.musica === 'playlist' && a.musica !== 'playlist') notas.push(['🎶', `Playlist economiza muito, mas ninguém conduz a pista. Defina um responsável e teste o som antes.`]);
-    if (b.vestido !== a.vestido) notas.push(['👰', `Mudança na estratégia do vestido — o resultado visual costuma ser equivalente se o ajuste for bem feito.`]);
-    if (b.convite === 'digital' && a.convite !== 'digital') notas.push(['💌', `Convite digital economiza e organiza a confirmação de presença. Envie nominalmente, nunca em grupo.`]);
-    if (b.localTipo === 'casa' && a.localTipo !== 'casa') notas.push(['🏡', `Casa/sítio só economiza se o custo de tenda, banheiro, mesas, louça e limpeza for menor que a locação. Faça essa conta.`]);
-    if (b.lembrancinhas === 'nao' && a.lembrancinhas === 'sim') notas.push(['🎁', `Sem lembrancinha: é a categoria com menor impacto percebido por real gasto.`]);
-    if (!notas.length) notas.push(['ℹ️', 'Os cenários estão iguais. Altere uma variável no cenário B para ver a comparação.']);
-    return notas.map(([ic, t]) => `<div class="lista-item"><span class="icone">${ic}</span><div class="corpo"><div class="meta" style="font-size:13px;color:var(--carvao)">${escapar(t)}</div></div></div>`).join('');
+    if (b.convidados < a.convidados) notas.push(['ok', `${a.convidados - b.convidados} pessoas a menos — mais verba por convidado, mas exige conversas difíceis.`]);
+    if (b.convidados > a.convidados) notas.push(['alerta', `${b.convidados - a.convidados} pessoas a mais — multiplica comida, bebida, convites e espaço.`]);
+    if (b.periodo !== a.periodo) notas.push(['relogio', `Mudança de período: muda o cardápio esperado, o consumo de bebida e a necessidade de iluminação.`]);
+    if (b.diaSemana !== a.diaSemana) notas.push(['calendario', `Dia diferente costuma abrir margem de negociação, mas pode reduzir a presença de convidados.`]);
+    if (b.formatoComida !== a.formatoComida) notas.push(['alimentacao', `Formato de comida diferente: confirme se a duração do evento combina com o que será servido.`]);
+    if (b.musica === 'playlist' && a.musica !== 'playlist') notas.push(['musica', `Playlist economiza muito, mas ninguém conduz a pista. Defina um responsável e teste o som antes.`]);
+    if (b.vestido !== a.vestido) notas.push(['vestido', `Mudança na estratégia do vestido — o resultado visual costuma ser equivalente se o ajuste for bem feito.`]);
+    if (b.convite === 'digital' && a.convite !== 'digital') notas.push(['convites', `Convite digital economiza e organiza a confirmação de presença. Envie nominalmente, nunca em grupo.`]);
+    if (b.localTipo === 'casa' && a.localTipo !== 'casa') notas.push(['casa', `Casa/sítio só economiza se o custo de tenda, banheiro, mesas, louça e limpeza for menor que a locação. Faça essa conta.`]);
+    if (b.lembrancinhas === 'nao' && a.lembrancinhas === 'sim') notas.push(['lembrancinhas', `Sem lembrancinha: é a categoria com menor impacto percebido por real gasto.`]);
+    if (!notas.length) notas.push(['info', 'Os cenários estão iguais. Altere uma variável no cenário B para ver a comparação.']);
+    return notas.map(([ic, t]) => `<div class="lista-item"><span class="icone">${icone(ic,18)}</span><div class="corpo"><div class="meta" style="font-size:13px;color:var(--carvao)">${escapar(t)}</div></div></div>`).join('');
   },
 
   /* ================================================================= MISSÕES */
@@ -585,7 +598,7 @@ const Telas = {
             <div class="card compacto" style="cursor:pointer;${feita ? 'opacity:.6' : ''}" onclick="Telas.abrirMissao('${m.id}')">
               <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
                 <div style="flex:1">
-                  <div class="card-titulo">${feita ? '✅ ' : ''}${escapar(m.titulo)}</div>
+                  <div class="card-titulo">${feita ? icone("ok",16) + " " : ""}${escapar(m.titulo)}</div>
                   <div class="card-sub">${escapar(m.objetivo)}</div>
                   <div class="pill-linha">
                     ${e ? `<span class="chip tag-ouro">${formatarMoeda(e.min, true)} – ${formatarMoeda(e.max, true)}</span>` : ''}
@@ -593,7 +606,7 @@ const Telas = {
                     <span class="chip tag">${m.tempo}</span>
                   </div>
                 </div>
-                <span style="color:var(--neblina)">›</span>
+                <span style="color:var(--neblina)">${icone("seta",15)}</span>
               </div>
             </div>`;
           }).join('')}
@@ -620,7 +633,7 @@ const Telas = {
         <div class="card compacto" style="margin-bottom:16px">
           ${Object.entries(NIVEIS_ECONOMIA).map(([k, n]) => `
             <div style="display:flex;gap:9px;align-items:baseline;padding:4px 0;font-size:12.5px">
-              <span>${n.emoji}</span><span><strong>${n.nome}</strong> — ${n.desc}</span>
+              <span><span class="nivel-ponto ${k}"></span></span><span><strong>${n.nome}</strong> — ${n.desc}</span>
             </div>`).join('')}
         </div>
 
@@ -628,17 +641,17 @@ const Telas = {
           <div class="card compacto" style="cursor:pointer" onclick="Telas.abrirEstrategia('${s.id}')">
             <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
               <div style="flex:1">
-                <div class="card-titulo">${NIVEIS_ECONOMIA[s.nivel].emoji} ${escapar(s.titulo)}</div>
+                <div class="card-titulo"><span class="nivel-ponto ${s.nivel}"></span> ${escapar(s.titulo)}</div>
                 <div class="card-sub">${escapar(s.problema)}</div>
                 <div class="pill-linha">
                   <span class="chip tag-ouro">${s.economia.min}–${s.economia.max}% sobre ${escapar(s.economia.base)}</span>
                   <span class="chip tag">${s.dificuldade === 'baixa' ? 'Fácil' : s.dificuldade === 'media' ? 'Média' : 'Difícil'}</span>
                 </div>
               </div>
-              <span style="color:var(--neblina)">›</span>
+              <span style="color:var(--neblina)">${icone("seta",15)}</span>
             </div>
           </div>`).join('')
-        : componenteVazio('🔍', 'Nada nessa categoria', 'Troque o filtro para ver outras estratégias.', '')}
+        : componenteVazio('lupa', 'Nada nessa categoria', 'Troque o filtro para ver outras estratégias.', '')}
 
         <div class="aviso-legal">Percentuais de economia são estimativas de planejamento sobre a categoria indicada, não garantias de preço.</div>
         <div class="pulo"></div>
@@ -660,7 +673,7 @@ const Telas = {
       ${this.cabecalho('Cronograma', `Faltam ${meses} meses`)}
       <div class="conteudo">
         <div class="alerta info">
-          <span class="ic">🗓️</span>
+          <span class="ic">${icone("calendario",16)}</span>
           <span>O cronograma se adapta ao seu estágio. O ponto pulsante marca a fase em que você está agora.</span>
         </div>
         <div class="card">
@@ -689,7 +702,7 @@ const Telas = {
       ${this.cabecalho('Calculadoras', 'Com as fórmulas à mostra')}
       <div class="conteudo">
         <div class="alerta info">
-          <span class="ic">🧮</span>
+          <span class="ic">${icone("calculadora",16)}</span>
           <span>Quantidades por pessoa são <strong>referências iniciais</strong>. Confirme sempre com quem vai produzir — não são padrões universais.</span>
         </div>
 
@@ -774,7 +787,7 @@ const Telas = {
   calcularParcelas() {
     const r = Motor.calc.parcelas($('#cp-valor').value, $('#cp-n').value, $('#cp-entrada').value);
     $('#cp-resultado').innerHTML = this.linhaResultado('Valor de cada parcela', formatarMoeda(r.parcela), r.formula) +
-      `<div class="alerta info" style="margin-top:10px"><span class="ic">💛</span><span>Só parcele o que cabe na sua capacidade mensal. Chegar ao casamento com dívida é o único resultado que eu quero te ajudar a evitar.</span></div>`;
+      `<div class="alerta info" style="margin-top:10px"><span class="ic">${icone("coracao",16)}</span><span>Só parcele o que cabe na sua capacidade mensal. Chegar ao casamento com dívida é o único resultado que eu quero te ajudar a evitar.</span></div>`;
   },
 
   calcularPoupanca() {
@@ -783,7 +796,7 @@ const Telas = {
     $('#cs-resultado').innerHTML =
       this.linhaResultado('Falta juntar', formatarMoeda(r.falta)) +
       this.linhaResultado('Por mês', formatarMoeda(r.mensal), r.formula) +
-      (cap ? `<div class="alerta ${r.mensal <= cap ? 'ok' : 'medio'}" style="margin-top:10px"><span class="ic">${r.mensal <= cap ? '✓' : '🔔'}</span><span>Você informou que guarda ${formatarMoeda(cap)}/mês. ${r.mensal <= cap ? 'A meta cabe.' : `Faltariam ${formatarMoeda(r.mensal - cap)}/mês — vale ajustar o formato ou a data antes de pensar em crédito.`}</span></div>` : '');
+      (cap ? `<div class="alerta ${r.mensal <= cap ? 'ok' : 'medio'}" style="margin-top:10px"><span class="ic">${icone(r.mensal <= cap ? "ok" : "sino",16)}</span><span>Você informou que guarda ${formatarMoeda(cap)}/mês. ${r.mensal <= cap ? 'A meta cabe.' : `Faltariam ${formatarMoeda(r.mensal - cap)}/mês — vale ajustar o formato ou a data antes de pensar em crédito.`}</span></div>` : '');
   },
 
   /* ============================================================= DOCUMENTOS */
@@ -796,7 +809,7 @@ const Telas = {
         <button class="btn btn-primario btn-bloco" onclick="Telas.abrirNovoDocumento()">+ Registrar documento</button>
         <div class="pulo"></div>
         <div class="alerta medio">
-          <span class="ic">⚖️</span>
+          <span class="ic">${icone("balanca",16)}</span>
           <span>Eu ajudo você a organizar valores, prazos e pontos de atenção. <strong>Isso não substitui a avaliação de um profissional do direito.</strong></span>
         </div>
         ${docs.length
@@ -810,11 +823,11 @@ const Telas = {
                 </div>
                 <div style="text-align:right">
                   <div class="valor" style="font-family:var(--display);font-size:16px;font-weight:600">${formatarMoeda(d.valor)}</div>
-                  <button class="fechar" style="width:26px;height:26px;font-size:12px;margin-top:6px" onclick="Acoes.removerDocumento('${d.id}')">✕</button>
+                  <button class="fechar" style="width:26px;height:26px;font-size:12px;margin-top:6px" onclick="Acoes.removerDocumento('${d.id}')">${icone("fechar",13)}</button>
                 </div>
               </div>
             </div>`).join('')
-          : componenteVazio('📄', 'Nenhum documento registrado', 'Registre contratos, propostas e recibos com valor, vencimento, multa e o que está incluso.', '')}
+          : componenteVazio('documentacao', 'Nenhum documento registrado', 'Registre contratos, propostas e recibos com valor, vencimento, multa e o que está incluso.', '')}
         <div class="pulo"></div>
       </div>`;
   },
@@ -836,7 +849,7 @@ const Telas = {
       ${this.cabecalho('Modo R$7 mil', 'Uma meta de planejamento')}
       <div class="conteudo">
         <div class="alerta medio">
-          <span class="ic">⚠️</span>
+          <span class="ic">${icone("alerta",16)}</span>
           <span>Os custos variam conforme cidade, número de convidados, data, fornecedores e escolhas.
           <strong>O Modo R$7 mil é uma meta de planejamento, não uma garantia de preço.</strong></span>
         </div>
@@ -871,15 +884,15 @@ const Telas = {
           <p class="secao-desc">Meu princípio não é cortar. É entregar a mesma função por menos.</p>
           <div class="card compacto">
             ${[
-              ['🎂', 'Bolo sofisticado', 'Bolo cenográfico para a foto + bolo simples para servir'],
-              ['👰', 'Vestido de coleção', 'Aluguel, seminovo ou vestido pronto customizado'],
-              ['🎶', 'DJ a noite toda', 'Playlist estruturada + som alugado + responsável designado'],
-              ['💌', 'Convite impresso', 'Convite digital com confirmação online'],
-              ['💐', 'Volume floral', 'Flores da estação, folhagem e velas nos pontos de foto'],
-              ['🍽️', 'Jantar completo', 'Brunch ou finger food com duração compatível'],
+              ['bolo', 'Bolo sofisticado', 'Bolo cenográfico para a foto + bolo simples para servir'],
+              ['vestido', 'Vestido de coleção', 'Aluguel, seminovo ou vestido pronto customizado'],
+              ['musica', 'DJ a noite toda', 'Playlist estruturada + som alugado + responsável designado'],
+              ['convites', 'Convite impresso', 'Convite digital com confirmação online'],
+              ['flores', 'Volume floral', 'Flores da estação, folhagem e velas nos pontos de foto'],
+              ['alimentacao', 'Jantar completo', 'Brunch ou finger food com duração compatível'],
             ].map(([ic, de, para]) => `
               <div class="lista-item">
-                <span class="icone">${ic}</span>
+                <span class="icone">${icone(ic,18)}</span>
                 <div class="corpo">
                   <div class="meta" style="text-decoration:line-through">${de}</div>
                   <div class="nome" style="font-size:13.5px">${para}</div>
@@ -982,7 +995,7 @@ const Telas = {
         <div class="card">
           <div class="card-titulo">Como eu calculo</div>
           <div class="acordeao">
-            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Distribuição da verba</span><span class="seta">▾</span></div>
+            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Distribuição da verba</span><span class="seta">${icone("seta",13)}</span></div>
             <div class="acordeao-corpo">
               distribuível = orçamento × (1 − margem)<br>
               peso da categoria = peso típico × (0,55 + 0,09 × prioridade)<br>
@@ -991,18 +1004,18 @@ const Telas = {
             </div>
           </div>
           <div class="acordeao">
-            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Estimativa por categoria</span><span class="seta">▾</span></div>
+            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Estimativa por categoria</span><span class="seta">${icone("seta",13)}</span></div>
             <div class="acordeao-corpo">
               estimativa = semente do padrão × quantidade × fator região × fator estilo × fator período × fator dia<br><br>
               As sementes são pontos de partida editáveis, não preços de mercado. Substitua por orçamentos reais.
             </div>
           </div>
           <div class="acordeao">
-            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Meta mensal</span><span class="seta">▾</span></div>
+            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Meta mensal</span><span class="seta">${icone("seta",13)}</span></div>
             <div class="acordeao-corpo">meta = (orçamento total − disponível hoje) ÷ meses restantes</div>
           </div>
           <div class="acordeao">
-            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Economia potencial</span><span class="seta">▾</span></div>
+            <div class="acordeao-topo" onclick="this.parentElement.classList.toggle('aberto')"><span>Economia potencial</span><span class="seta">${icone("seta",13)}</span></div>
             <div class="acordeao-corpo">
               Soma, para cada missão em aberto, o ponto médio do intervalo percentual aplicado sobre a base indicada.
               Economia potencial nunca vira "economizado" sozinha — você confirma o valor real.
@@ -1079,7 +1092,7 @@ const Telas = {
     const despesas = Store.estado.despesas.filter((x) => x.categoria === catId);
 
     abrirGaveta(
-      `${cat.icone} ${cat.nome}`,
+      `<span class="cat-nome">${icone(cat.icone, 16)}${cat.nome}</span>`,
       `Prioridade ${d.prioridade}/10 · ${pct(d.planejado, r.total).toFixed(0)}% do orçamento`,
       `
       <div class="grade-2">
@@ -1092,10 +1105,10 @@ const Telas = {
         <p class="ajuda">Deixe em branco para eu voltar a calcular automaticamente (sugestão: ${formatarMoeda(d.sugerido)}).</p>
       </div>
       <div class="alerta info">
-        <span class="ic">📐</span>
+        <span class="ic">${icone("grafico",16)}</span>
         <span>Estimativa para o seu formato: <strong>${formatarMoeda(d.estimativa)}</strong>. É um ponto de partida — orçamentos reais mandam mais.</span>
       </div>
-      ${cat.dica ? `<div class="card compacto"><div class="card-sub">💡 ${escapar(cat.dica)}</div></div>` : ''}
+      ${cat.dica ? `<div class="card compacto"><div class="card-sub"><span class="titulo-ic">${icone("info",15)}</span>${escapar(cat.dica)}</div></div>` : ''}
 
       ${cat.naoIncluiCostuma.length ? `
       <div class="secao">
@@ -1119,7 +1132,7 @@ const Telas = {
       <div class="secao">
         <div class="secao-titulo" style="font-size:16px">Estratégias para economizar aqui</div>
         ${estr.map((s) => `<div class="card compacto" style="cursor:pointer" onclick="Telas.abrirEstrategia('${s.id}')">
-          <div class="card-titulo" style="font-size:15px">${NIVEIS_ECONOMIA[s.nivel].emoji} ${escapar(s.titulo)}</div>
+          <div class="card-titulo" style="font-size:15px"><span class="nivel-ponto ${s.nivel}"></span> ${escapar(s.titulo)}</div>
           <div class="card-sub">${escapar(s.solucao)}</div>
           <div class="pill-linha"><span class="chip tag-ouro">${s.economia.min}–${s.economia.max}% (estimativa)</span></div>
         </div>`).join('')}
@@ -1134,7 +1147,7 @@ const Telas = {
     const n = NIVEIS_ECONOMIA[s.nivel];
     abrirGaveta(
       s.titulo,
-      `${n.emoji} ${n.nome}`,
+      `${n.nome}`,
       `
       <div class="pill-linha" style="margin-bottom:14px">
         <span class="selo ${s.nivel}">${n.nome}</span>
@@ -1169,9 +1182,9 @@ const Telas = {
       </div>` : ''}
 
       ${s.afeta && s.afeta.length ? `<div class="card compacto"><div class="rotulo">Categorias afetadas</div>
-        <div class="pill-linha">${s.afeta.map((a) => { const c = Motor.categoria(a); return c ? `<span class="chip tag">${c.icone} ${c.nome}</span>` : ''; }).join('')}</div></div>` : ''}
+        <div class="pill-linha">${s.afeta.map((a) => { const c = Motor.categoria(a); return c ? `<span class="chip tag"><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span></span>` : ''; }).join('')}</div></div>` : ''}
 
-      <div class="alerta info"><span class="ic">📝</span><span>${escapar(s.observacoes)}</span></div>
+      <div class="alerta info"><span class="ic">${icone("documentacao",16)}</span><span>${escapar(s.observacoes)}</span></div>
       <div class="aviso-legal">Percentuais são estimativas de planejamento sobre a categoria indicada, não garantias de preço.</div>
       <div class="pulo"></div>`
     );
@@ -1205,11 +1218,11 @@ const Telas = {
       ${m.estrategias && m.estrategias.length ? `<div class="secao">
         <div class="secao-titulo" style="font-size:16px">Estratégias relacionadas</div>
         ${m.estrategias.map((sid) => { const s = ESTRATEGIAS.find((x) => x.id === sid); return s ? `<div class="card compacto" style="cursor:pointer" onclick="Telas.abrirEstrategia('${s.id}')">
-          <div class="card-titulo" style="font-size:15px">${NIVEIS_ECONOMIA[s.nivel].emoji} ${escapar(s.titulo)}</div></div>` : ''; }).join('')}
+          <div class="card-titulo" style="font-size:15px"><span class="nivel-ponto ${s.nivel}"></span> ${escapar(s.titulo)}</div></div>` : ''; }).join('')}
       </div>` : ''}
 
       ${feita
-        ? `<div class="alerta ok"><span class="ic">✓</span><span>Missão concluída${st.economiaConfirmada ? ` — você registrou ${formatarMoeda(st.economiaConfirmada)} de economia.` : '.'}</span></div>
+        ? `<div class="alerta ok"><span class="ic">${icone("ok",16)}</span><span>Missão concluída${st.economiaConfirmada ? ` — você registrou ${formatarMoeda(st.economiaConfirmada)} de economia.` : '.'}</span></div>
            <button class="btn btn-contorno btn-bloco" onclick="Acoes.reabrirMissao('${id}')">Reabrir missão</button>`
         : `<div class="card">
             <div class="card-titulo">Concluir missão</div>
@@ -1259,12 +1272,12 @@ const Telas = {
     const d = Motor.detectarPrejuizo(cat, valor);
     alvo.innerHTML = `
       <div class="card card-destaque">
-        <div class="card-titulo">🔍 Detector de prejuízo</div>
-        ${d.sinais.map((s) => `<div class="alerta ${s.nivel === 'alto' ? 'alto' : s.nivel === 'medio' ? 'medio' : 'ok'}" style="margin-top:8px"><span class="ic">${s.nivel === 'alto' ? '⚠️' : s.nivel === 'medio' ? '🔔' : '✓'}</span><span>${escapar(s.texto)}</span></div>`).join('')}
+        <div class="card-titulo"><span class="titulo-ic">${icone("lupa",17)}</span>Detector de prejuízo</div>
+        ${d.sinais.map((s) => `<div class="alerta ${s.nivel === 'alto' ? 'alto' : s.nivel === 'medio' ? 'medio' : 'ok'}" style="margin-top:8px"><span class="ic">${icone(s.nivel === "alto" ? "alerta" : s.nivel === "medio" ? "sino" : "ok",16)}</span><span>${escapar(s.texto)}</span></div>`).join('')}
         ${d.checklist.length ? `<div style="margin-top:10px"><div class="rotulo">Antes de fechar, confirme por escrito</div>
-          ${d.checklist.map((c) => `<div style="font-size:13px;padding:4px 0">☐ ${escapar(c)}</div>`).join('')}</div>` : ''}
+          ${d.checklist.map((c) => `<div style="font-size:13px;padding:4px 0">${escapar(c)}</div>`).join('')}</div>` : ''}
         ${d.alternativas.length ? `<div style="margin-top:10px"><div class="rotulo">Alternativas</div>
-          ${d.alternativas.map((a) => `<div style="font-size:13px;padding:4px 0;cursor:pointer" onclick="Telas.abrirEstrategia('${a.id}')">${NIVEIS_ECONOMIA[a.nivel].emoji} ${escapar(a.titulo)} ›</div>`).join('')}</div>` : ''}
+          ${d.alternativas.map((a) => `<div style="font-size:13px;padding:4px 0;cursor:pointer" onclick="Telas.abrirEstrategia('${a.id}')"><span class="nivel-ponto ${a.nivel}"></span> ${escapar(a.titulo)} ›</div>`).join('')}</div>` : ''}
       </div>`;
   },
 
@@ -1275,7 +1288,7 @@ const Telas = {
       'O que eu vejo nos seus números',
       achados.map((a) => `
         <div class="card compacto">
-          <div class="card-titulo" style="font-size:15px">${a.nivel === 'alto' ? '⚠️' : a.nivel === 'medio' ? '🔔' : '✓'} ${escapar(a.titulo)}</div>
+          <div class="card-titulo" style="font-size:15px"><span class="titulo-ic">${icone(a.nivel === "alto" ? "alerta" : a.nivel === "medio" ? "sino" : "ok",16)}</span>${escapar(a.titulo)}</div>
           <p class="card-sub" style="margin-top:4px">${escapar(a.texto)}</p>
           ${a.categoria ? `<button class="btn btn-secundario btn-mini" style="margin-top:8px" onclick="Telas.abrirCategoria('${a.categoria}')">Abrir categoria</button>` : ''}
         </div>`).join('') + `<div class="aviso-legal">${AVISO_ESTIMATIVA}</div><div class="pulo"></div>`
@@ -1303,7 +1316,7 @@ const Telas = {
       </div>
       <div class="campo"><label>Condições de pagamento</label><input type="text" id="f-pagamento" placeholder="Ex.: 30% de entrada, saldo 30 dias antes"></div>
       <div class="campo"><label>Sua avaliação pessoal</label>
-        <select id="f-avaliacao"><option value="0">Ainda não avaliei</option><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3">★★★</option><option value="2">★★</option><option value="1">★</option></select></div>
+        <select id="f-avaliacao"><option value="0">Ainda não avaliei</option><option value="5">5 — excelente</option><option value="4">4 — muito bom</option><option value="3">3 — bom</option><option value="2">2 — regular</option><option value="1">1 — fraco</option></select></div>
       <div class="campo"><label>Observações</label><textarea id="f-obs"></textarea></div>
       <label class="toggle"><span class="txt">Já contratei este fornecedor<small>Se marcar, o valor entra no orçamento como contratado</small></span>
         <span class="switch"><input type="checkbox" id="f-contratado"><span class="trilho"></span></span></label>
@@ -1360,15 +1373,15 @@ const Telas = {
             <tr><td>Condições</td>${lista.map((f) => `<td>${escapar(f.pagamento || '—')}</td>`).join('')}</tr>
             <tr><td>Incluso</td>${lista.map((f) => `<td style="white-space:pre-line">${escapar(f.incluso || '—')}</td>`).join('')}</tr>
             <tr><td>Não incluso</td>${lista.map((f) => `<td style="white-space:pre-line">${escapar(f.naoIncluso || '—')}</td>`).join('')}</tr>
-            <tr><td>Sua nota</td>${lista.map((f) => `<td>${f.avaliacao ? '★'.repeat(f.avaliacao) : '—'}</td>`).join('')}</tr>
+            <tr><td>Sua nota</td>${lista.map((f) => `<td>${f.avaliacao ? estrelas(f.avaliacao) : '—'}</td>`).join('')}</tr>
           </tbody>
         </table>
       </div>
       <div class="alerta info" style="margin-top:14px">
-        <span class="ic">⚖️</span>
+        <span class="ic">${icone("balanca",16)}</span>
         <span>O menor preço proposto nem sempre é o menor custo total. Compare a linha <strong>custo total</strong> e leia a linha <strong>não incluso</strong> antes de decidir.</span>
       </div>
-      ${lista.length < 3 ? `<div class="alerta medio"><span class="ic">🔔</span><span>Com ${lista.length} propostas você ainda tem pouca base de comparação. Três é o número que costuma abrir margem de negociação real.</span></div>` : ''}
+      ${lista.length < 3 ? `<div class="alerta medio"><span class="ic">${icone("sino",16)}</span><span>Com ${lista.length} propostas você ainda tem pouca base de comparação. Três é o número que costuma abrir margem de negociação real.</span></div>` : ''}
       <div class="pulo"></div>`
     );
   },
@@ -1391,7 +1404,7 @@ const Telas = {
       <div class="campo"><label>Pontos que merecem atenção</label>
         <p class="ajuda">Um por linha. Ex.: multa de cancelamento, hora extra, prazo de entrega, o que não está incluso.</p>
         <textarea id="d-pontos" style="min-height:110px" placeholder="Multa de 30% em caso de cancelamento&#10;Hora extra: valor por hora&#10;Prazo de entrega das fotos"></textarea></div>
-      <div class="alerta medio"><span class="ic">⚖️</span><span>Organizar não é analisar juridicamente. <strong>Isso não substitui a avaliação de um profissional do direito.</strong></span></div>
+      <div class="alerta medio"><span class="ic">${icone("balanca",16)}</span><span>Organizar não é analisar juridicamente. <strong>Isso não substitui a avaliação de um profissional do direito.</strong></span></div>
       <button class="btn btn-primario btn-bloco" onclick="Acoes.salvarDocumento()">Salvar</button>
       <div class="pulo"></div>`
     );

@@ -24,6 +24,52 @@ Há exportação e importação de backup em JSON dentro de **Configurações**.
 
 ---
 
+## Onde os dados ficam
+
+Não há cadastro. Tudo é gravado no `localStorage`, que é isolado **por dispositivo e por
+navegador** — cada pessoa que abrir o app no próprio celular tem os próprios dados, sem
+nenhuma mistura entre elas e sem nada trafegando para servidor algum.
+
+O que isso implica, dito sem rodeio:
+
+| Situação | Resultado |
+|---|---|
+| Pessoas diferentes, cada uma no seu aparelho | Dados separados |
+| A mesma pessoa voltando depois | Continua de onde parou |
+| Limpar os dados do navegador | Perde — por isso existe o backup |
+| Trocar de aparelho | Não acompanha sozinho |
+| Duas pessoas no mesmo aparelho | Uma sobrescreve a outra |
+
+Sincronizar entre aparelhos exigiria identificar a pessoa, e identificar é cadastro. Enquanto
+não houver cadastro, o caminho é **Configurações → Exportar backup**, que gera um JSON
+reimportável em qualquer aparelho.
+
+---
+
+## Empacotar em arquivo único
+
+```bash
+node build.js
+```
+
+Gera `dist/noiva-inteligente.html` com CSS e JS embutidos — um arquivo só, que abre offline
+e pode ser publicado em qualquer lugar. A pasta `dist/` não é versionada: é derivada.
+
+---
+
+## Ícones
+
+Não há emoji na interface e não há imagem externa. Os ícones ficam em
+`assets/js/icones.js`: cerca de 50 desenhos SVG em traço, viewBox 24×24, herdando
+`currentColor`. A escolha é deliberada — vetor escala sem perder nitidez, assume a cor do
+contexto, mantém o app funcionando offline e dá identidade própria em vez do desenho que
+cada sistema operacional resolve mostrar.
+
+A fonte web é tratada como ganho, não como dependência: onde a rede está bloqueada, a pilha
+tipográfica cai em serifas reais (Iowan, Palatino, Georgia) que sustentam o tom sozinhas.
+
+---
+
 ## Deploy
 
 O site é estático, então o workflow `.github/workflows/deploy.yml` publica a raiz do

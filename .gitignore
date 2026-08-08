@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+
+# gerado por build.js — reproduza com: node build.js
+dist/

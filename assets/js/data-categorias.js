@@ -20,7 +20,7 @@ const CATEGORIAS = [
   {
     id: 'local',
     nome: 'Local / Espaço',
-    icone: '🏛️',
+    icone: 'local',
     grupo: 'Estrutura',
     pesoBase: 15,
     dependeConvidados: true,
@@ -38,7 +38,7 @@ const CATEGORIAS = [
   {
     id: 'cerimonia',
     nome: 'Cerimônia',
-    icone: '💍',
+    icone: 'cerimonia',
     grupo: 'Estrutura',
     pesoBase: 4,
     dependeConvidados: false,
@@ -54,7 +54,7 @@ const CATEGORIAS = [
   {
     id: 'alimentacao',
     nome: 'Alimentação',
-    icone: '🍽️',
+    icone: 'alimentacao',
     grupo: 'Recepção',
     pesoBase: 20,
     dependeConvidados: true,
@@ -72,7 +72,7 @@ const CATEGORIAS = [
   {
     id: 'bebidas',
     nome: 'Bebidas',
-    icone: '🥂',
+    icone: 'bebidas',
     grupo: 'Recepção',
     pesoBase: 7,
     dependeConvidados: true,
@@ -88,7 +88,7 @@ const CATEGORIAS = [
   {
     id: 'bolo',
     nome: 'Bolo',
-    icone: '🎂',
+    icone: 'bolo',
     grupo: 'Recepção',
     pesoBase: 2.5,
     dependeConvidados: true,
@@ -103,7 +103,7 @@ const CATEGORIAS = [
   {
     id: 'doces',
     nome: 'Doces e sobremesas',
-    icone: '🍬',
+    icone: 'doces',
     grupo: 'Recepção',
     pesoBase: 2,
     dependeConvidados: true,
@@ -114,7 +114,7 @@ const CATEGORIAS = [
   {
     id: 'decoracao',
     nome: 'Decoração',
-    icone: '✨',
+    icone: 'decoracao',
     grupo: 'Estética',
     pesoBase: 7,
     dependeConvidados: true,
@@ -130,7 +130,7 @@ const CATEGORIAS = [
   {
     id: 'flores',
     nome: 'Flores',
-    icone: '💐',
+    icone: 'flores',
     grupo: 'Estética',
     pesoBase: 3,
     dependeConvidados: true,
@@ -141,7 +141,7 @@ const CATEGORIAS = [
   {
     id: 'vestido',
     nome: 'Vestido da noiva',
-    icone: '👰',
+    icone: 'vestido',
     grupo: 'Noivos',
     pesoBase: 8,
     dependeConvidados: false,
@@ -157,7 +157,7 @@ const CATEGORIAS = [
   {
     id: 'traje',
     nome: 'Traje do noivo',
-    icone: '🤵',
+    icone: 'traje',
     grupo: 'Noivos',
     pesoBase: 3,
     dependeConvidados: false,
@@ -168,7 +168,7 @@ const CATEGORIAS = [
   {
     id: 'beleza',
     nome: 'Beleza e noiva',
-    icone: '💄',
+    icone: 'beleza',
     grupo: 'Noivos',
     pesoBase: 3,
     dependeConvidados: false,
@@ -184,7 +184,7 @@ const CATEGORIAS = [
   {
     id: 'fotografia',
     nome: 'Fotografia',
-    icone: '📸',
+    icone: 'fotografia',
     grupo: 'Registro',
     pesoBase: 8,
     dependeConvidados: false,
@@ -202,7 +202,7 @@ const CATEGORIAS = [
   {
     id: 'filmagem',
     nome: 'Filmagem',
-    icone: '🎥',
+    icone: 'filmagem',
     grupo: 'Registro',
     pesoBase: 4,
     dependeConvidados: false,
@@ -213,7 +213,7 @@ const CATEGORIAS = [
   {
     id: 'musica',
     nome: 'Música / som',
-    icone: '🎶',
+    icone: 'musica',
     grupo: 'Recepção',
     pesoBase: 4,
     dependeConvidados: false,
@@ -229,7 +229,7 @@ const CATEGORIAS = [
   {
     id: 'convites',
     nome: 'Convites',
-    icone: '💌',
+    icone: 'convites',
     grupo: 'Comunicação',
     pesoBase: 1.5,
     dependeConvidados: true,
@@ -240,7 +240,7 @@ const CATEGORIAS = [
   {
     id: 'lembrancinhas',
     nome: 'Lembrancinhas',
-    icone: '🎁',
+    icone: 'lembrancinhas',
     grupo: 'Comunicação',
     pesoBase: 1.5,
     dependeConvidados: true,
@@ -251,7 +251,7 @@ const CATEGORIAS = [
   {
     id: 'transporte',
     nome: 'Transporte',
-    icone: '🚗',
+    icone: 'transporte',
     grupo: 'Logística',
     pesoBase: 1.5,
     dependeConvidados: false,
@@ -262,7 +262,7 @@ const CATEGORIAS = [
   {
     id: 'aliancas',
     nome: 'Alianças',
-    icone: '💛',
+    icone: 'aliancas',
     grupo: 'Noivos',
     pesoBase: 3,
     dependeConvidados: false,
@@ -273,7 +273,7 @@ const CATEGORIAS = [
   {
     id: 'documentacao',
     nome: 'Documentação',
-    icone: '📄',
+    icone: 'documentacao',
     grupo: 'Logística',
     pesoBase: 1,
     dependeConvidados: false,
@@ -284,7 +284,7 @@ const CATEGORIAS = [
   {
     id: 'taxas',
     nome: 'Taxas e serviços',
-    icone: '🧾',
+    icone: 'taxas',
     grupo: 'Logística',
     pesoBase: 1,
     dependeConvidados: false,
@@ -295,7 +295,7 @@ const CATEGORIAS = [
   {
     id: 'outros',
     nome: 'Outros',
-    icone: '➕',
+    icone: 'outros',
     grupo: 'Logística',
     pesoBase: 0.5,
     dependeConvidados: false,

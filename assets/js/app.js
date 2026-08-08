@@ -5,7 +5,7 @@
 
   // monta a navegação inferior
   $('#nav').innerHTML = TELAS_NAV.map(
-    (t) => `<button data-tela="${t.id}" onclick="App.ir('${t.id}')"><span class="ic">${t.ic}</span><span>${t.nome}</span></button>`
+    (t) => `<button data-tela="${t.id}" onclick="App.ir('${t.id}')"><span class="ic">${icone(t.ic, 21)}</span><span>${t.nome}</span></button>`
   ).join('');
 
   if (!Store.estado.onboardingConcluido) {
