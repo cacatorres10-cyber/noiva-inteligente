@@ -29,7 +29,7 @@ const Onboarding = {
         id: 'intro',
         render: () => `
           <div style="text-align:center;padding:24px 6px 10px">
-            ${ilustracaoCapa()}
+            ${capaVisual()}
             <h1 style="margin-bottom:10px">Vamos transformar o seu orçamento em um plano de casamento.</h1>
             <p style="color:var(--grafite);font-size:14.5px">
               Em poucos minutos eu monto a distribuição da sua verba, o cronograma, as primeiras ações

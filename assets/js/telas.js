@@ -54,7 +54,8 @@ const Telas = {
     const sonhos = (p.tresSonhos || []).filter(Boolean);
 
     return `
-      <div class="topo">
+      <div class="topo ${temFoto('plano') ? 'com-foto' : ''}">
+        ${temFoto('plano') ? foto('plano', { classe: 'foto-topo', scrim: true }) : ''}
         <div class="sub">Seu plano está pronto</div>
         <h1>Meu Plano<br>Inteligente</h1>
         <p style="color:rgba(255,255,255,.82);font-size:13.5px;margin-top:8px;position:relative">

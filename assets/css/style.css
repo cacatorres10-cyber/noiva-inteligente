@@ -427,6 +427,62 @@ input[type="range"] { width: 100%; accent-color: var(--vinho); }
 .capa-svg { width: 100%; max-width: 320px; height: auto; display: block; margin: 0 auto 18px; }
 
 /* ==========================================================================
+   FOTOGRAFIA — slots que degradam para a ilustração quando não há arquivo
+   ========================================================================== */
+
+.foto-slot {
+  position: relative;
+  margin: 0 0 18px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  aspect-ratio: var(--proporcao, 16 / 10);
+  background: var(--blush);
+  /* enquanto carrega, um brilho suave em vez de um buraco branco */
+  background-image: linear-gradient(100deg, var(--blush) 30%, var(--areia) 50%, var(--blush) 70%);
+  background-size: 240px 100%;
+  animation: brilho 1.9s ease-in-out infinite;
+}
+.foto-slot.carregada { animation: none; background-image: none; }
+
+.foto-slot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: var(--foco, center);
+  display: block;
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.foto-slot.carregada img { opacity: 1; }
+
+/* a ilustração ocupa o mesmo espaço quando a foto não existe */
+.foto-slot .foto-fallback {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  background: var(--blush);
+}
+.foto-slot .foto-fallback[hidden] { display: none; }
+.foto-slot .foto-fallback .capa-svg { margin: 0; max-width: 100%; }
+
+/* véu para o texto continuar legível sobre a imagem */
+.foto-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(58, 20, 40, .82) 0%, rgba(58, 20, 40, .35) 45%, rgba(58, 20, 40, .12) 100%);
+}
+
+.foto-slot figcaption {
+  position: absolute; left: 14px; bottom: 12px;
+  color: #fff; font-size: 12px; text-shadow: 0 1px 6px rgba(0, 0, 0, .5);
+}
+
+/* foto ocupando o topo de uma tela, com o título por cima */
+.topo.com-foto { padding: 0; position: relative; min-height: 210px; display: flex; flex-direction: column; justify-content: flex-end; }
+.topo.com-foto .foto-topo { position: absolute; inset: 0; margin: 0; border-radius: 0; aspect-ratio: auto; }
+.topo.com-foto > .sub, .topo.com-foto > h1, .topo.com-foto > p { position: relative; z-index: 2; }
+.topo.com-foto > .sub { padding: 0 20px; }
+.topo.com-foto > h1 { padding: 0 20px; }
+.topo.com-foto > p { padding: 0 20px 22px; }
+
+/* ==========================================================================
    MOVIMENTO — o app monta em vez de aparecer pronto
    ========================================================================== */
 

@@ -68,6 +68,20 @@ cada sistema operacional resolve mostrar.
 A fonte web é tratada como ganho, não como dependência: onde a rede está bloqueada, a pilha
 tipográfica cai em serifas reais (Iowan, Palatino, Georgia) que sustentam o tom sozinhas.
 
+### Fotografias
+
+Há dois slots de foto — a abertura do onboarding e o topo de "Meu Plano Inteligente".
+Coloque as imagens em `assets/fotos/` com os nomes indicados em
+[`assets/fotos/LEIA-ME.md`](assets/fotos/LEIA-ME.md) e elas entram sozinhas.
+
+Sem as fotos o app fica completo: cada slot cai na ilustração vetorial, sem placeholder
+quebrado. Isso é deliberado — a ferramenta não pode depender de um arquivo que talvez nunca
+seja baixado.
+
+A foto entra só onde ela ajuda: nas duas telas de acolhimento. As telas de números
+(orçamento, cenários, fornecedores) continuam sem imagem, porque ali a foto competiria com
+a informação que a pessoa foi ler.
+
 ---
 
 ## Deploy

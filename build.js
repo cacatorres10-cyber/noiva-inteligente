@@ -14,6 +14,7 @@ const path = require('path');
 const RAIZ = __dirname;
 const ORDEM_JS = [
   'icones.js',
+  'fotos.js',
   'data-categorias.js',
   'data-estrategias.js',
   'data-missoes.js',
@@ -31,8 +32,31 @@ function ler(p) {
   return fs.readFileSync(path.join(RAIZ, p), 'utf8');
 }
 
+/*
+ * As fotos de assets/fotos/ viram data URI, para o arquivo único não depender
+ * de nenhum arquivo externo. Sem fotos na pasta, o mapa fica vazio e os slots
+ * caem na ilustração vetorial — o app continua completo.
+ */
+function embutirFotos() {
+  const dir = path.join(RAIZ, 'assets/fotos');
+  if (!fs.existsSync(dir)) return {};
+  const tipos = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.avif': 'image/avif' };
+  const mapa = {};
+  for (const nome of fs.readdirSync(dir)) {
+    const tipo = tipos[path.extname(nome).toLowerCase()];
+    if (!tipo) continue;
+    const bytes = fs.readFileSync(path.join(dir, nome));
+    mapa[nome] = `data:${tipo};base64,${bytes.toString('base64')}`;
+    console.log(`  foto embutida: ${nome} (${(bytes.length / 1024).toFixed(0)} KB)`);
+  }
+  return mapa;
+}
+
+const fotos = embutirFotos();
 const css = ler('assets/css/style.css');
-const js = ORDEM_JS.map((f) => `/* ===== ${f} ===== */\n` + ler('assets/js/' + f)).join('\n\n');
+const js =
+  `/* ===== fotos embutidas ===== */\nwindow.FOTOS_EMBUTIDAS = ${JSON.stringify(fotos)};\n\n` +
+  ORDEM_JS.map((f) => `/* ===== ${f} ===== */\n` + ler('assets/js/' + f)).join('\n\n');
 
 /* O corpo da página é extraído do index.html, para não haver duas fontes de verdade. */
 const indexHtml = ler('index.html');
