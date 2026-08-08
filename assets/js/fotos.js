@@ -75,3 +75,61 @@ function capaVisual() {
 function temFoto(id) {
   return !!(FOTOS[id] && FOTOS_EMBUTIDAS[FOTOS[id].arquivo]);
 }
+
+/* ====================================================== por categoria */
+
+/*
+ * Uma foto por categoria do orçamento. O arquivo tem o mesmo nome do id da
+ * categoria — assets/fotos/categorias/alimentacao.jpg, vestido.jpg, e assim
+ * por diante. Onde a foto não existe, o ícone vetorial continua no lugar dela.
+ */
+const FOTOS_CATEGORIA_BASE = 'assets/fotos/categorias/';
+
+/* Briefing de enquadramento por categoria, usado na documentação e na geração. */
+const BRIEFING_CATEGORIA = {
+  local: 'Espaço de celebração vazio e arrumado, luz natural, plano aberto.',
+  cerimonia: 'Altar ou arco decorado, sem rostos em close.',
+  alimentacao: 'Prato montado ou mesa de buffet, luz suave, cores quentes.',
+  bebidas: 'Taças servidas em bandeja ou bar montado, foco raso.',
+  bolo: 'Bolo de casamento inteiro sobre a mesa, fundo limpo.',
+  doces: 'Mesa de doces em plano médio, poucas variedades bem dispostas.',
+  decoracao: 'Mesa posta com arranjo central e velas.',
+  flores: 'Buquê ou arranjo de flores em plano fechado.',
+  vestido: 'Vestido de noiva pendurado ou detalhe do tecido, luz natural.',
+  traje: 'Terno com gravata e acessórios dispostos sobre superfície clara.',
+  beleza: 'Bancada de maquiagem ou detalhe de penteado, sem rosto identificável.',
+  fotografia: 'Câmera fotográfica sobre superfície clara, ou fotógrafo de costas.',
+  filmagem: 'Câmera de vídeo em tripé, plano médio.',
+  musica: 'Instrumento ou mesa de som, luz ambiente quente.',
+  convites: 'Convite impresso com envelope e detalhes, vista de cima.',
+  lembrancinhas: 'Lembrancinhas embaladas e alinhadas, vista de cima.',
+  transporte: 'Carro clássico decorado, plano aberto.',
+  aliancas: 'Par de alianças em plano fechado sobre superfície neutra.',
+  documentacao: 'Documentos e caneta sobre mesa, vista de cima.',
+  taxas: 'Papelada e calculadora sobre mesa, vista de cima.',
+  outros: 'Composição neutra de detalhes de casamento.',
+};
+
+/*
+ * Devolve a miniatura da categoria: foto quando houver, ícone quando não.
+ * Assinatura pensada para substituir `icone(cat.icone, n)` sem outra mudança.
+ */
+function miniaturaCategoria(catId, tamanho) {
+  const arquivo = catId + '.jpg';
+  const src = FOTOS_EMBUTIDAS[arquivo] || FOTOS_EMBUTIDAS['categorias/' + arquivo];
+  if (!src) return icone(catId, tamanho);
+  return `<img class="cat-foto" src="${escapar(src)}" alt="" loading="lazy" decoding="async"
+            style="width:${tamanho * 1.6}px;height:${tamanho * 1.6}px"
+            onerror="this.outerHTML=${escapar(JSON.stringify(icone(catId, tamanho)))}">`;
+}
+
+/* Capa da gaveta de categoria — só aparece quando existe foto para ela. */
+function capaCategoria(catId) {
+  const arquivo = catId + '.jpg';
+  const src = FOTOS_EMBUTIDAS[arquivo] || FOTOS_EMBUTIDAS['categorias/' + arquivo];
+  if (!src) return '';
+  const cat = CATEGORIAS.find((c) => c.id === catId);
+  return `<figure class="foto-slot carregada foto-categoria" style="--proporcao:16 / 7;--foco:center 50%">
+      <img src="${escapar(src)}" alt="${escapar(cat ? cat.nome : '')}" loading="lazy" decoding="async">
+    </figure>`;
+}

@@ -29,7 +29,7 @@ const Telas = {
             <div class="sub">${escapar(sub || '')}</div>
             <h2>${escapar(titulo)}</h2>
           </div>
-          ${comMenu === false ? '' : '<button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">${icone("menu",18)}</button>'}
+          ${comMenu === false ? '' : `<button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">${icone("menu", 18)}</button>`}
         </div>
       </div>`;
   },
@@ -125,7 +125,7 @@ const Telas = {
             ${ordenadas.map((d) => `
               <div style="padding:9px 0;border-bottom:1px solid var(--linha)">
                 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-                  <span style="font-size:14px"><span class="cat-nome">${icone(d.cat.icone, 16)}${d.cat.nome}</span> <span style="color:var(--neblina);font-size:11.5px">· ${d.prioridade}/10</span></span>
+                  <span style="font-size:14px"><span class="cat-nome">${miniaturaCategoria(d.id, 16)}${d.cat.nome}</span> <span style="color:var(--neblina);font-size:11.5px">· ${d.prioridade}/10</span></span>
                   <strong style="font-family:var(--display);font-size:15px;white-space:nowrap">${formatarMoeda(d.planejado)}</strong>
                 </div>
                 <div class="barra-cat"><span style="width:${pct(d.planejado, r.total)}%"></span></div>
@@ -330,7 +330,7 @@ const Telas = {
                 return `
                 <div style="padding:11px 0;border-bottom:1px solid var(--linha);cursor:pointer" onclick="Telas.abrirCategoria('${c.id}')">
                   <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-                    <span style="font-size:14.5px"><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span>
+                    <span style="font-size:14.5px"><span class="cat-nome">${miniaturaCategoria(c.id, 16)}${c.nome}</span>
                       <span style="color:var(--neblina);font-size:11px">· prioridade ${d.prioridade}</span>
                     </span>
                     <span style="text-align:right;white-space:nowrap">
@@ -399,7 +399,7 @@ const Telas = {
           <div class="card compacto" style="opacity:${ativa ? 1 : 0.5}">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
               <div style="flex:1">
-                <div style="font-size:14.5px;font-weight:600"><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span></div>
+                <div style="font-size:14.5px;font-weight:600"><span class="cat-nome">${miniaturaCategoria(c.id, 16)}${c.nome}</span></div>
                 <div style="font-size:11.5px;color:var(--grafite)">
                   ${ativa ? `${formatarMoeda(d.planejado)} · ${pct(d.planejado, r.total).toFixed(0)}% do orçamento` : 'categoria desativada'}
                 </div>
@@ -531,7 +531,7 @@ const Telas = {
             ${comp.afetadas.length
               ? comp.afetadas.map((c) => `
                 <div class="diff">
-                  <span><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span></span>
+                  <span><span class="cat-nome">${miniaturaCategoria(c.id, 16)}${c.nome}</span></span>
                   <span>
                     <span style="color:var(--grafite);font-size:12px">${formatarMoeda(c.a, true)} → ${formatarMoeda(c.b, true)}</span>
                     <strong class="${c.dif < 0 ? 'menos' : 'mais'}" style="margin-left:8px">${c.dif < 0 ? '−' : '+'}${formatarMoeda(Math.abs(c.dif), true)}</strong>
@@ -1093,9 +1093,10 @@ const Telas = {
     const despesas = Store.estado.despesas.filter((x) => x.categoria === catId);
 
     abrirGaveta(
-      `<span class="cat-nome">${icone(cat.icone, 16)}${cat.nome}</span>`,
+      cat.nome,
       `Prioridade ${d.prioridade}/10 · ${pct(d.planejado, r.total).toFixed(0)}% do orçamento`,
       `
+      ${capaCategoria(catId)}
       <div class="grade-2">
         <div class="mini-stat"><div class="rotulo">Planejado</div><div class="valor">${formatarMoeda(d.planejado)}</div></div>
         <div class="mini-stat"><div class="rotulo">Contratado</div><div class="valor ${d.contratado > d.planejado ? 'negativo' : ''}">${formatarMoeda(d.contratado)}</div></div>
@@ -1183,7 +1184,7 @@ const Telas = {
       </div>` : ''}
 
       ${s.afeta && s.afeta.length ? `<div class="card compacto"><div class="rotulo">Categorias afetadas</div>
-        <div class="pill-linha">${s.afeta.map((a) => { const c = Motor.categoria(a); return c ? `<span class="chip tag"><span class="cat-nome">${icone(c.icone, 16)}${c.nome}</span></span>` : ''; }).join('')}</div></div>` : ''}
+        <div class="pill-linha">${s.afeta.map((a) => { const c = Motor.categoria(a); return c ? `<span class="chip tag"><span class="cat-nome">${miniaturaCategoria(c.id, 16)}${c.nome}</span></span>` : ''; }).join('')}</div></div>` : ''}
 
       <div class="alerta info"><span class="ic">${icone("documentacao",16)}</span><span>${escapar(s.observacoes)}</span></div>
       <div class="aviso-legal">Percentuais são estimativas de planejamento sobre a categoria indicada, não garantias de preço.</div>

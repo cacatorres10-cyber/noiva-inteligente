@@ -474,6 +474,20 @@ input[type="range"] { width: 100%; accent-color: var(--vinho); }
   color: #fff; font-size: 12px; text-shadow: 0 1px 6px rgba(0, 0, 0, .5);
 }
 
+/* miniatura redonda da categoria, no lugar do ícone quando há foto */
+.cat-foto {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1.5px solid var(--linha);
+  background: var(--blush);
+}
+.cat-nome .cat-foto { margin-right: 1px; }
+.lista-item .icone .cat-foto { width: 100% !important; height: 100% !important; border-radius: 12px; border: none; }
+
+/* capa da gaveta de categoria */
+.foto-categoria { margin-bottom: 14px; }
+
 /* foto ocupando o topo de uma tela, com o título por cima */
 .topo.com-foto { padding: 0; position: relative; min-height: 210px; display: flex; flex-direction: column; justify-content: flex-end; }
 .topo.com-foto .foto-topo { position: absolute; inset: 0; margin: 0; border-radius: 0; aspect-ratio: auto; }

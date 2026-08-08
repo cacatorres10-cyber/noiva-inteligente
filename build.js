@@ -42,13 +42,25 @@ function embutirFotos() {
   if (!fs.existsSync(dir)) return {};
   const tipos = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.avif': 'image/avif' };
   const mapa = {};
-  for (const nome of fs.readdirSync(dir)) {
-    const tipo = tipos[path.extname(nome).toLowerCase()];
-    if (!tipo) continue;
-    const bytes = fs.readFileSync(path.join(dir, nome));
-    mapa[nome] = `data:${tipo};base64,${bytes.toString('base64')}`;
-    console.log(`  foto embutida: ${nome} (${(bytes.length / 1024).toFixed(0)} KB)`);
-  }
+  /* percorre subpastas (assets/fotos/categorias/...) e indexa pelo nome do
+     arquivo e pelo caminho relativo, para os dois jeitos de busca funcionarem */
+  const percorrer = (atual, prefixo) => {
+    for (const nome of fs.readdirSync(atual)) {
+      const completo = path.join(atual, nome);
+      if (fs.statSync(completo).isDirectory()) {
+        percorrer(completo, prefixo + nome + '/');
+        continue;
+      }
+      const tipo = tipos[path.extname(nome).toLowerCase()];
+      if (!tipo) continue;
+      const bytes = fs.readFileSync(completo);
+      const uri = `data:${tipo};base64,${bytes.toString('base64')}`;
+      mapa[prefixo + nome] = uri;
+      mapa[nome] = uri;
+      console.log(`  foto embutida: ${prefixo}${nome} (${(bytes.length / 1024).toFixed(0)} KB)`);
+    }
+  };
+  percorrer(dir, '');
   return mapa;
 }
 
