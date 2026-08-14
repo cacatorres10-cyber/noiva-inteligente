@@ -631,27 +631,25 @@ const Telas = {
           ${CATEGORIAS_ESTRATEGIA.map((c) => `<button class="chip ${filtro === c.id ? 'ativo' : ''}" onclick="Acoes.filtrarEstrategias('${c.id}')">${c.nome}</button>`).join('')}
         </div>
 
-        <div class="card compacto" style="margin-bottom:16px">
+        <div class="legenda-niveis">
           ${Object.entries(NIVEIS_ECONOMIA).map(([k, n]) => `
-            <div style="display:flex;gap:9px;align-items:baseline;padding:4px 0;font-size:12.5px">
-              <span><span class="nivel-ponto ${k}"></span></span><span><strong>${n.nome}</strong> — ${n.desc}</span>
-            </div>`).join('')}
+            <span title="${escapar(n.desc)}"><span class="nivel-ponto ${k}"></span>${n.nome.replace('Economia ', '')}</span>`).join('')}
         </div>
 
         ${lista.length ? lista.map((s) => `
-          <div class="card compacto" style="cursor:pointer" onclick="Telas.abrirEstrategia('${s.id}')">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-              <div style="flex:1">
-                <div class="card-titulo"><span class="nivel-ponto ${s.nivel}"></span> ${escapar(s.titulo)}</div>
-                <div class="card-sub">${escapar(s.problema)}</div>
-                <div class="pill-linha">
-                  <span class="chip tag-ouro">${s.economia.min}–${s.economia.max}% sobre ${escapar(s.economia.base)}</span>
-                  <span class="chip tag">${s.dificuldade === 'baixa' ? 'Fácil' : s.dificuldade === 'media' ? 'Média' : 'Difícil'}</span>
-                </div>
-              </div>
-              <span style="color:var(--neblina)">${icone("seta",15)}</span>
-            </div>
-          </div>`).join('')
+          <button class="card compacto cartao-estrategia" onclick="Telas.abrirEstrategia('${s.id}')">
+            <span class="ce-topo">
+              <span class="nivel-ponto ${s.nivel}"></span>
+              <span class="ce-titulo">${escapar(s.titulo)}</span>
+              <span class="ce-seta">${icone('seta', 15)}</span>
+            </span>
+            <span class="ce-problema">${escapar(s.problema)}</span>
+            <span class="ce-rodape">
+              <span class="ce-economia">${s.economia.min}–${s.economia.max}%</span>
+              <span class="ce-base">sobre ${escapar(s.economia.base)}</span>
+              <span class="ce-dif">${s.dificuldade === 'baixa' ? 'Fácil' : s.dificuldade === 'media' ? 'Média' : 'Difícil'}</span>
+            </span>
+          </button>`).join('')
         : componenteVazio('lupa', 'Nada nessa categoria', 'Troque o filtro para ver outras estratégias.', '')}
 
         <div class="aviso-legal">Percentuais de economia são estimativas de planejamento sobre a categoria indicada, não garantias de preço.</div>
@@ -664,33 +662,61 @@ const Telas = {
   cronograma() {
     const tarefas = Motor.cronogramaAtivo();
     const meses = Motor.mesesRestantes();
+    const pendentes = tarefas.filter((t) => t.pendente);
+    const futuras = tarefas.filter((t) => t.futura && !t.feita);
+    const feitas = tarefas.filter((t) => t.feita);
+
+    /* Fases futuras continuam agrupadas por mês; o acúmulo vira um bloco só. */
     const fases = {};
-    tarefas.forEach((t) => {
-      const chave = t.mesInicio >= 12 ? '12+ meses antes' : t.mesInicio === 0 ? 'Semana do casamento' : `${t.mesInicio} ${t.mesInicio === 1 ? 'mês' : 'meses'} antes`;
+    futuras.forEach((t) => {
+      const chave = `${t.mesInicio} ${t.mesInicio === 1 ? 'mês' : 'meses'} antes`;
       (fases[chave] = fases[chave] || []).push(t);
     });
 
+    const linha = (t) => `
+      <div class="tl-item ${t.feita ? 'feita' : ''}">
+        <label>
+          <input type="checkbox" ${t.feita ? 'checked' : ''} onchange="Acoes.alternarTarefa('${t.id}', this.checked)">
+          <span class="tl-marca"></span>
+          <span class="tl-titulo">${escapar(t.titulo)}</span>
+        </label>
+      </div>`;
+
     return `
-      ${this.cabecalho('Cronograma', `Faltam ${meses} meses`)}
+      ${this.cabecalho('Cronograma', meses > 0 ? `Faltam ${meses} meses` : 'É agora')}
       <div class="conteudo">
-        <div class="alerta info">
-          <span class="ic">${icone("calendario",16)}</span>
-          <span>O cronograma se adapta ao seu estágio. O ponto pulsante marca a fase em que você está agora.</span>
-        </div>
-        <div class="card">
-          <div class="timeline">
-            ${Object.entries(fases).map(([fase, lista]) => `
-              <div class="tl-fase">${escapar(fase)}</div>
-              ${lista.map((t) => `
-                <div class="tl-item ${t.feita ? 'feita' : ''} ${t.atrasada ? 'atrasada' : ''} ${t.agora ? 'agora' : ''}">
-                  <label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">
-                    <input type="checkbox" ${t.feita ? 'checked' : ''} onchange="Acoes.alternarTarefa('${t.id}', this.checked)" style="width:auto;margin-top:2px;accent-color:var(--vinho)">
-                    <span class="tl-titulo">${escapar(t.titulo)}${t.atrasada ? ' <span style="color:var(--vermelho);font-size:11px">· atrasada</span>' : ''}</span>
-                  </label>
-                </div>`).join('')}
-            `).join('')}
+        ${pendentes.length ? `
+        <div class="secao">
+          <div class="secao-titulo">Comece por aqui</div>
+          <p class="secao-desc">
+            ${pendentes.length} ${pendentes.length === 1 ? 'tarefa faz parte' : 'tarefas fazem parte'} do estágio em que você está.
+            Não é atraso — é a sua fila. Marque à medida que resolver.
+          </p>
+          <div class="card"><div class="timeline agora">${pendentes.map(linha).join('')}</div></div>
+        </div>` : ''}
+
+        ${Object.keys(fases).length ? `
+        <div class="secao">
+          <div class="secao-titulo">Pela frente</div>
+          <p class="secao-desc">Cada bloco abre quando faltar esse tempo para a data.</p>
+          <div class="card">
+            <div class="timeline">
+              ${Object.entries(fases).map(([fase, lista]) => `
+                <div class="tl-fase">${escapar(fase)}</div>
+                ${lista.map(linha).join('')}`).join('')}
+            </div>
           </div>
-        </div>
+        </div>` : ''}
+
+        ${feitas.length ? `
+        <div class="secao">
+          <div class="secao-titulo">Já resolvido <span class="chip tag">${feitas.length}</span></div>
+          <div class="card"><div class="timeline">${feitas.map(linha).join('')}</div></div>
+        </div>` : ''}
+
+        ${!pendentes.length && !Object.keys(fases).length && !feitas.length
+          ? componenteVazio('calendario', 'Nada no cronograma', 'Informe sua data ou o prazo estimado em Meus dados para eu montar as fases.', '')
+          : ''}
         <div class="pulo"></div>
       </div>`;
   },

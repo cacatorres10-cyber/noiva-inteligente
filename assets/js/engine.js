@@ -676,13 +676,19 @@ const Motor = {
     })
       .map((t) => {
         const estado = Store.estado.tarefas[t.id] || {};
-        const atrasada = meses < t.mesInicio - 1 && !estado.feita;
-        const agora = meses <= t.mesInicio && meses >= t.mesInicio - 2;
+        const feita = !!estado.feita || (contratado[t.categoria] > 0 && t.titulo.toLowerCase().includes('fechar'));
+        /*
+         * "Pendente" em vez de "atrasada": quem começa a planejar faltando
+         * 6 meses não está atrasada em nada — ela só tem um acúmulo para
+         * resolver primeiro. Rotular isso de atraso é culpa gratuita, e o
+         * produto existe para reduzir ansiedade, não para produzi-la.
+         * A informação vira agrupamento, não etiqueta vermelha.
+         */
         return {
           ...t,
-          feita: !!estado.feita || (contratado[t.categoria] > 0 && t.titulo.toLowerCase().includes('fechar')),
-          atrasada,
-          agora,
+          feita,
+          pendente: !feita && meses <= t.mesInicio,
+          futura: meses > t.mesInicio,
         };
       })
       .sort((a, b) => b.mesInicio - a.mesInicio);
@@ -690,10 +696,11 @@ const Motor = {
 
   proximasTarefas(n) {
     const meses = this.mesesRestantes();
-    return this.cronogramaAtivo()
-      .filter((t) => !t.feita && t.mesInicio >= meses - 1)
-      .sort((a, b) => Math.abs(a.mesInicio - meses) - Math.abs(b.mesInicio - meses))
-      .slice(0, n || 5);
+    const abertas = this.cronogramaAtivo().filter((t) => !t.feita);
+    /* o que já deveria estar em curso vem primeiro, depois o que se aproxima */
+    const pendentes = abertas.filter((t) => t.pendente).sort((a, b) => b.mesInicio - a.mesInicio);
+    const futuras = abertas.filter((t) => !t.pendente).sort((a, b) => b.mesInicio - a.mesInicio);
+    return pendentes.concat(futuras).slice(0, n || 5);
   },
 
   /* --------------------------------------------------------- missões */
