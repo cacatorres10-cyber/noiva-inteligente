@@ -269,15 +269,56 @@ const Acoes = {
 
   /* ---------------------------------------------------------- dados */
 
+  /*
+   * Backup: tenta baixar o arquivo. Em contextos onde o navegador bloqueia
+   * download iniciado pela página (visualizadores embutidos, por exemplo),
+   * mostra o conteúdo para copiar — o backup nunca fica inacessível.
+   */
   exportar() {
-    const blob = new Blob([Store.exportar()], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `noiva-inteligente-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('Backup gerado.');
+    const dados = Store.exportar();
+    const nome = `noiva-inteligente-${new Date().toISOString().slice(0, 10)}.json`;
+    try {
+      const url = URL.createObjectURL(new Blob([dados], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nome;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      /* segue para a cópia manual */
+    }
+    this.mostrarBackup(dados, nome);
+  },
+
+  mostrarBackup(dados, nome) {
+    abrirGaveta(
+      'Seu backup',
+      'Se o download não começou, copie daqui',
+      `<p class="card-sub">Guarde este texto em qualquer lugar seguro — bloco de notas, e-mail para você mesma, arquivo no celular.
+       Para restaurar, use <strong>Importar</strong> e cole de volta.</p>
+       <div class="campo" style="margin-top:var(--e4)">
+         <textarea id="backup-texto" readonly style="min-height:180px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px">${escapar(dados)}</textarea>
+       </div>
+       <button class="btn btn-primario btn-bloco" onclick="Acoes.copiarBackup()">Copiar tudo</button>
+       <p class="card-sub" style="margin-top:var(--e3);text-align:center">Sugestão de nome: ${escapar(nome)}</p>
+       <div class="pulo"></div>`
+    );
+  },
+
+  copiarBackup() {
+    const campo = $('#backup-texto');
+    if (!campo) return;
+    campo.select();
+    campo.setSelectionRange(0, campo.value.length);
+    const copiado = navigator.clipboard
+      ? navigator.clipboard.writeText(campo.value).then(() => true).catch(() => false)
+      : Promise.resolve(document.execCommand('copy'));
+    Promise.resolve(copiado).then((ok) =>
+      toast(ok ? 'Backup copiado.' : 'Selecione o texto e copie manualmente.')
+    );
   },
 
   importar(input) {
@@ -294,6 +335,36 @@ const Acoes = {
       }
     };
     leitor.readAsText(arquivo);
+  },
+
+  /* Restaura a partir de texto colado, para quem não consegue anexar arquivo. */
+  importarTexto() {
+    abrirGaveta(
+      'Restaurar backup',
+      'Cole o texto que você salvou',
+      `<div class="campo">
+         <textarea id="restaurar-texto" placeholder="Cole aqui o conteúdo do backup" style="min-height:180px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px"></textarea>
+       </div>
+       <div class="alerta medio"><span class="ic">${icone('alerta', 16)}</span><span>Restaurar substitui todo o planejamento que estiver neste aparelho.</span></div>
+       <button class="btn btn-primario btn-bloco" onclick="Acoes.confirmarImportacao()">Restaurar</button>
+       <div class="pulo"></div>`
+    );
+  },
+
+  confirmarImportacao() {
+    const campo = $('#restaurar-texto');
+    if (!campo || !campo.value.trim()) {
+      toast('Cole o texto do backup primeiro.');
+      return;
+    }
+    try {
+      Store.importar(campo.value.trim());
+      fecharGaveta();
+      toast('Planejamento restaurado.');
+      App.ir('dashboard');
+    } catch (e) {
+      toast('Esse texto não parece ser um backup válido.');
+    }
   },
 
   resetar() {

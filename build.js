@@ -14,6 +14,7 @@ const path = require('path');
 const RAIZ = __dirname;
 const ORDEM_JS = [
   'icones.js',
+  'cenas.js',
   'fotos.js',
   'data-categorias.js',
   'data-estrategias.js',

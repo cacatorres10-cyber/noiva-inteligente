@@ -68,7 +68,8 @@ function foto(id, opcoes) {
  * então a tela nunca parece incompleta enquanto as fotos não chegam.
  */
 function capaVisual() {
-  return foto('capa');
+  if (FOTOS_EMBUTIDAS[FOTOS.capa.arquivo]) return foto('capa');
+  return `<figure class="foto-slot carregada capa-abertura">${cenaAbertura()}</figure>`;
 }
 
 /* Existe uma foto disponível para este slot? Usado para decidir layout. */
@@ -127,7 +128,8 @@ function miniaturaCategoria(catId, tamanho) {
 function capaCategoria(catId) {
   const arquivo = catId + '.jpg';
   const src = FOTOS_EMBUTIDAS[arquivo] || FOTOS_EMBUTIDAS['categorias/' + arquivo];
-  if (!src) return '';
+  /* Sem foto, a cena ilustrada assume — a gaveta nunca abre sem imagem. */
+  if (!src) return `<figure class="foto-slot carregada foto-categoria cena-slot">${cenaCategoria(catId, 'capa')}</figure>`;
   const cat = CATEGORIAS.find((c) => c.id === catId);
   return `<figure class="foto-slot carregada foto-categoria" style="--proporcao:16 / 7;--foco:center 50%">
       <img src="${escapar(src)}" alt="${escapar(cat ? cat.nome : '')}" loading="lazy" decoding="async">

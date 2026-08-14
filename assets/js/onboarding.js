@@ -30,16 +30,15 @@ const Onboarding = {
         render: () => `
           <div style="text-align:center;padding:24px 6px 10px">
             ${capaVisual()}
-            <h1 style="margin-bottom:10px">Vamos transformar o seu orçamento em um plano de casamento.</h1>
-            <p style="color:var(--grafite);font-size:14.5px">
-              Em poucos minutos eu monto a distribuição da sua verba, o cronograma, as primeiras ações
-              e as estratégias que fazem sentido para o <em>seu</em> casamento — não para um casamento genérico.
+            <h1 style="margin-bottom:var(--e3)">Seu orçamento vira<br>um plano em 5 minutos.</h1>
+            <p style="color:var(--grafite)">
+              Você diz quanto tem. Eu digo onde gastar, onde economizar e o que fazer primeiro.
             </p>
-            <div class="card card-destaque" style="text-align:left;margin-top:18px">
-              <div class="card-titulo">O que eu preciso saber</div>
+            <div class="card card-destaque" style="text-align:left;margin-top:var(--e5)">
+              <div class="card-titulo">Antes de começar</div>
               <p class="card-sub" style="margin:0">
-                Quanto você tem, quando pretende casar, quantas pessoas você quer receber
-                e — o mais importante — o que é <strong>inegociável</strong> para você.
+                A pergunta que mais importa aqui vem no final: <strong>o que é inegociável para você.</strong>
+                Tudo que eu recomendar vai ser construído para proteger isso.
               </p>
             </div>
           </div>`,
@@ -47,16 +46,16 @@ const Onboarding = {
         salvar: () => {},
       },
 
-      /* 1 */ this.passoMoeda('orcamentoTotal', 'Qual é o seu orçamento máximo?', 'O valor total que você pretende gastar com o casamento inteiro. Pode ser uma estimativa — dá para ajustar depois.'),
+      /* 1 */ this.passoMoeda('orcamentoTotal', 'Quanto você pode gastar, no total?', 'Chute se precisar. Esse número muda tudo que eu calculo, e você ajusta quando quiser.'),
 
-      /* 2 */ this.passoMoeda('disponivelHoje', 'Quanto você já tem disponível hoje?', 'Dinheiro já guardado e reservado para o casamento.'),
+      /* 2 */ this.passoMoeda('disponivelHoje', 'Quanto já está guardado?', 'Só o que já existe na conta e é do casamento.'),
 
-      /* 3 */ this.passoMoeda('poupancaMensal', 'Quanto vocês conseguem guardar por mês?', 'Seja realista. É esse número que eu uso para dizer se o plano fecha ou não.'),
+      /* 3 */ this.passoMoeda('poupancaMensal', 'E quanto dá para guardar por mês?', 'Coloque o número real, não o otimista. É com ele que eu digo se o plano fecha.'),
 
       /* 4 */ {
         id: 'dataDefinida',
         pergunta: 'A data já está definida?',
-        contexto: 'Se ainda estiver em aberto, a data vira uma ferramenta de negociação muito forte.',
+        contexto: 'Data em aberto é dinheiro na mão: vira argumento de negociação com todo fornecedor.',
         render: () => `
           <button class="opcao ${this.rascunho.dataDefinida ? 'ativo' : ''}" data-v="1" onclick="Onboarding.escolher(this)">
             <span class="opcao-ic">${icone("calendario", 20)}</span><span><strong>Sim, já temos data</strong><span class="desc">Vou montar o cronograma a partir dela</span></span>
@@ -74,7 +73,7 @@ const Onboarding = {
       /* 5 */ {
         id: 'quando',
         pergunta: 'Quando vocês pretendem casar?',
-        contexto: 'A data define o cronograma inteiro e o quanto você ainda consegue poupar até lá.',
+        contexto: 'É daqui que sai o seu cronograma e a sua meta de todo mês.',
         render: () => {
           if (this.rascunho.dataDefinida) {
             return `
@@ -120,7 +119,7 @@ const Onboarding = {
       /* 6 */ {
         id: 'local',
         pergunta: 'Em qual cidade ou região será o casamento?',
-        contexto: 'Preços variam muito entre regiões. Eu não assumo que a sua cidade custa igual a nenhuma outra — quem calibra isso é você.',
+        contexto: 'Não vou fingir que sei quanto custa na sua cidade. Você me diz, e eu calibro.',
         render: () => `
           <div class="campo">
             <label>Cidade / região</label>
@@ -128,7 +127,7 @@ const Onboarding = {
           </div>
           <div class="campo">
             <label>Como você avalia o custo de vida da sua região?</label>
-            <p class="ajuda">Isso calibra as minhas estimativas. Não é um dado de mercado — é a sua leitura.</p>
+            <p class="ajuda">Sua percepção, não tabela de mercado. Serve para eu ajustar as estimativas.</p>
             ${NIVEL_REGIAO.map(
               (n) => `<button class="opcao ${this.rascunho.nivelRegiao === n.id ? 'ativo' : ''}" data-v="${n.id}" onclick="Onboarding.escolher(this)">
                 <span class="opcao-ic">${icone(n.id === 'baixo' ? 'folha' : n.id === 'medio' ? 'local' : 'diamante', 20)}</span>
@@ -146,7 +145,7 @@ const Onboarding = {
       /* 7 */ {
         id: 'convidados',
         pergunta: 'Quantos convidados, aproximadamente?',
-        contexto: 'Esse é o número que mais mexe no seu orçamento. Ele multiplica comida, bebida, bolo, convites, lembrancinhas e até o tamanho do espaço.',
+        contexto: 'O número que mais mexe no bolso. Cada pessoa multiplica comida, bebida, bolo, convite, lembrancinha e o tamanho do espaço.',
         render: () => `
           <div style="text-align:center;margin:10px 0 4px">
             <div class="numero-grande" id="ob-conv-label">${this.rascunho.convidados || 80}</div>
@@ -159,7 +158,7 @@ const Onboarding = {
           </div>
           <div class="alerta info" style="margin-top:16px">
             <span class="ic">${icone("info", 16)}</span>
-            <span>Casamentos intimistas concentram o orçamento em menos pessoas e costumam elevar a qualidade percebida de tudo.</span>
+            <span>Menos gente, mais verba por pessoa. É o caminho mais rápido para um casamento que parece caro sem ser.</span>
           </div>`,
         valido: () => true,
         salvar: () => {
@@ -170,7 +169,7 @@ const Onboarding = {
       /* 8 */ {
         id: 'periodo',
         pergunta: 'O casamento será de manhã, tarde ou noite?',
-        contexto: 'O horário muda cardápio, consumo de bebida, iluminação e até a duração da festa.',
+        contexto: 'Horário decide cardápio, consumo de bebida, iluminação e quanto tempo a festa dura.',
         render: () =>
           PERIODOS.map(
             (p) => `<button class="opcao ${this.rascunho.periodo === p.id ? 'ativo' : ''}" data-v="${p.id}" onclick="Onboarding.escolher(this)">
@@ -189,7 +188,7 @@ const Onboarding = {
       /* 9 */ {
         id: 'estilo',
         pergunta: 'Qual estilo você deseja?',
-        contexto: 'O estilo define o padrão estético esperado — e, com ele, boa parte do custo da decoração e do local.',
+        contexto: 'O estilo define o que as pessoas esperam ver — e boa parte do custo de decoração e local.',
         render: () => `<div class="chips" style="margin-bottom:14px">
             ${ESTILOS.map((e) => `<button class="chip ${this.rascunho.estilo === e.id ? 'ativo' : ''}" data-v="${e.id}" onclick="Onboarding.escolherChip(this)">${e.nome}</button>`).join('')}
           </div>
@@ -213,7 +212,7 @@ const Onboarding = {
       /* 10 */ {
         id: 'prioridades',
         pergunta: 'Quais são as suas 3 maiores prioridades?',
-        contexto: 'Escolha até 3. Enquanto existir alternativa em categoria de baixa prioridade, eu nunca vou sugerir cortar aqui.',
+        contexto: 'Escolha até 3. Enquanto sobrar alternativa em outro lugar, eu não encosto nestas.',
         render: () => `<div class="chips">
             ${CATEGORIAS_PRIORIZAVEIS.map((id) => {
               const c = Motor.categoria(id);
@@ -229,7 +228,7 @@ const Onboarding = {
       /* 11 */ {
         id: 'simplificaveis',
         pergunta: 'O que pode ser simplificado sem dor?',
-        contexto: 'É aqui que eu vou procurar folga antes de encostar em qualquer coisa que você marcou como prioridade.',
+        contexto: 'É aqui que eu procuro dinheiro primeiro. Marque sem culpa — ou deixe em branco.',
         render: () => `<div class="chips">
             ${CATEGORIAS_PRIORIZAVEIS.filter((id) => !this.rascunho.prioridadesTop.includes(id))
               .map((id) => {
@@ -239,7 +238,7 @@ const Onboarding = {
               })
               .join('')}
           </div>
-          <p class="ajuda" style="margin-top:12px">Pode marcar quantas quiser — ou nenhuma.</p>`,
+          <p class="ajuda" style="margin-top:var(--e3)">Quantas quiser. Ou nenhuma.</p>`,
         valido: () => true,
         salvar: () => {},
       },
@@ -247,7 +246,7 @@ const Onboarding = {
       /* 12 */ {
         id: 'preferencias',
         pergunta: 'O que vocês aceitam colocar na mesa?',
-        contexto: 'Eu só recomendo estratégias que respeitem essas respostas. Se você marcar não, eu não insisto.',
+        contexto: 'Marcou não? Eu não insisto. Nenhuma estratégia que você recusar vai aparecer de novo.',
         render: () => `
           <div class="card">
             ${this.toggle('aceitaDiy', 'Aceito fazer coisas por conta (DIY)', 'Decoração, lembrancinhas, convites')}
@@ -267,7 +266,7 @@ const Onboarding = {
       /* 13 */ {
         id: 'apoio',
         pergunta: 'Vocês já têm fornecedores ou ajuda garantida?',
-        contexto: 'Fornecedor já fechado sai do rateio pelo valor real. Ajuda de família só conta quando tem nome, prazo e escopo.',
+        contexto: 'Fornecedor fechado sai do rateio pelo valor real. Ajuda de família só vale quando tem nome e prazo.',
         render: () => `
           <div class="campo">
             <label>Fornecedores já contratados</label>
@@ -292,7 +291,7 @@ const Onboarding = {
       /* 14 */ {
         id: 'restricoes',
         pergunta: 'Existe alguma restrição importante?',
-        contexto: 'Restrições alimentares, mobilidade, religião, clima, distância, prazos — qualquer coisa que eu precise respeitar.',
+        contexto: 'Alimentar, mobilidade, religião, clima, distância. Qualquer coisa que eu precise respeitar.',
         render: () => `
           <div class="campo">
             <textarea id="ob-restricoes" placeholder="Ex.: cerimônia religiosa obrigatória; avó com dificuldade de locomoção; convidados vindo de outro estado" style="min-height:110px">${escapar(this.rascunho.restricoes || '')}</textarea>
@@ -307,7 +306,7 @@ const Onboarding = {
       /* 15 — pergunta obrigatória */ {
         id: 'sonhos',
         pergunta: 'Se você pudesse escolher apenas 3 coisas para ficarem exatamente como sonhou, quais seriam?',
-        contexto: 'Essa é a pergunta que mais importa aqui dentro. Tudo que eu recomendar vai ser construído para proteger essas três coisas.',
+        contexto: 'A pergunta mais importante do app. Tudo que eu sugerir vai existir para proteger estas três coisas.',
         render: () => `
           ${[0, 1, 2]
             .map(
@@ -317,7 +316,7 @@ const Onboarding = {
               </div>`
             )
             .join('')}
-          <div class="alerta info"><span class="ic">${icone("coracao", 16)}</span><span>Não precisa ser uma categoria. Pode ser "minha avó presente" ou "chegar sem dívida".</span></div>`,
+          <div class="alerta info"><span class="ic">${icone("coracao", 16)}</span><span>Não precisa ser categoria. Pode ser “minha avó presente” ou “chegar sem dívida”.</span></div>`,
         valido: () => {
           const v = [0, 1, 2].map((i) => $('#ob-sonho-' + i).value.trim()).filter(Boolean);
           return v.length >= 1;

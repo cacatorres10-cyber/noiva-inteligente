@@ -56,25 +56,25 @@ const Telas = {
     return `
       <div class="topo ${temFoto('plano') ? 'com-foto' : ''}">
         ${temFoto('plano') ? foto('plano', { classe: 'foto-topo', scrim: true }) : ''}
-        <div class="sub">Seu plano está pronto</div>
-        <h1>Meu Plano<br>Inteligente</h1>
+        <div class="sub">Pronto</div>
+        <h1>Seu plano<br>inteligente</h1>
         <p style="color:rgba(255,255,255,.82);font-size:13.5px;margin-top:8px;position:relative">
-          Agora você sabe exatamente o que fazer — e por quê.
+          Agora você sabe onde gastar, onde economizar e por onde começar.
         </p>
       </div>
 
       <div class="conteudo">
         ${sonhos.length ? `
         <div class="card card-destaque">
-          <div class="rotulo">O que eu vou proteger</div>
+          <div class="rotulo">Inegociável</div>
           <div style="margin-top:8px">
             ${sonhos.map((s) => `<div style="font-family:var(--display);font-size:17px;color:var(--vinho);margin-bottom:4px"><span class="sonho-ic">${icone("coracao",15)}</span>${escapar(s)}</div>`).join('')}
           </div>
-          <p class="card-sub" style="margin:10px 0 0">Enquanto existir alternativa em outra categoria, eu não vou sugerir cortar nada disso.</p>
+          <p class="card-sub" style="margin:var(--e3) 0 0">Enquanto sobrar alternativa em outro lugar, eu não encosto nisso.</p>
         </div>` : ''}
 
         <div class="card">
-          <div class="rotulo">Orçamento recomendado</div>
+          <div class="rotulo">Seu orçamento</div>
           <div class="numero-grande" data-contar="${r.total}">${formatarMoeda(r.total)}</div>
           <p class="card-sub" style="margin-top:4px">
             Reservando ${r.margemPct}% de margem de segurança (${formatarMoeda(r.reserva)}),
@@ -120,7 +120,7 @@ const Telas = {
 
         <div class="secao">
           <div class="secao-titulo">Distribuição da verba</div>
-          <p class="secao-desc">Calculada a partir do peso típico de cada categoria ajustado pelas suas prioridades.</p>
+          <p class="secao-desc">Peso típico de cada categoria, ajustado pelo que você marcou como prioridade.</p>
           <div class="card compacto">
             ${ordenadas.map((d) => `
               <div style="padding:9px 0;border-bottom:1px solid var(--linha)">
@@ -135,7 +135,7 @@ const Telas = {
         </div>
 
         <div class="secao">
-          <div class="secao-titulo">Suas primeiras 5 ações</div>
+          <div class="secao-titulo">Comece por aqui</div>
           <div class="card compacto">
             ${tarefas.map((t, i) => `
               <div class="lista-item">
@@ -147,8 +147,8 @@ const Telas = {
         </div>
 
         <div class="secao">
-          <div class="secao-titulo">Estratégia de economia</div>
-          <p class="secao-desc">As missões com maior retorno para o seu caso agora.</p>
+          <div class="secao-titulo">Onde tem dinheiro sobrando</div>
+          <p class="secao-desc">As três ações de maior retorno para o seu caso, hoje.</p>
           ${missoes.map((m) => {
             const eco = Motor.economiaMissao(m);
             return `<div class="card compacto" onclick="Telas.abrirMissao('${m.id}')" style="cursor:pointer">
@@ -170,7 +170,7 @@ const Telas = {
 
         <div class="aviso-legal" style="margin-bottom:16px">${AVISO_ESTIMATIVA}</div>
 
-        <button class="btn btn-primario btn-bloco" onclick="App.ir('dashboard')">Ir para o meu painel</button>
+        <button class="btn btn-primario btn-bloco" onclick="App.ir('dashboard')">Começar a planejar</button>
         <div class="pulo"></div>
       </div>`;
   },
@@ -197,9 +197,9 @@ const Telas = {
           <button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">${icone("menu",18)}</button>
         </div>
         <div style="margin-top:16px;position:relative">
-          <div class="sub">Seu casamento</div>
-          <h1 style="font-size:27px;margin-top:2px">
-            ${p.dataCasamento ? formatarData(p.dataCasamento) : `em ~${Motor.mesesRestantes()} meses`}
+          <div class="sub">${p.dataCasamento ? 'Seu grande dia' : 'Seu casamento'}</div>
+          <h1 style="font-size:28px;margin-top:2px">
+            ${p.dataCasamento ? formatarData(p.dataCasamento) : `Daqui a ${Motor.mesesRestantes()} meses`}
           </h1>
           <p style="color:rgba(255,255,255,.82);font-size:13px;margin-top:4px;position:relative">
             ${dias !== null && dias >= 0 ? `Faltam ${dias} dias · ` : ''}${p.convidados} convidados${p.cidade ? ' · ' + escapar(p.cidade) : ''}
@@ -227,12 +227,12 @@ const Telas = {
           <div class="mini-stat">
             <div class="rotulo">Economia potencial</div>
             <div class="valor positivo" data-contar="${eco.potencial}">${formatarMoeda(eco.potencial)}</div>
-            <div style="font-size:11px;color:var(--grafite)">estimada, ainda não confirmada</div>
+            <div style="font-size:var(--t-nota);color:var(--grafite)">ainda não confirmada</div>
           </div>
           <div class="mini-stat">
             <div class="rotulo">Meta mensal</div>
             <div class="valor ${meta.viavel ? '' : 'negativo'}">${formatarMoeda(meta.meta)}</div>
-            <div style="font-size:11px;color:var(--grafite)">${meta.viavel ? 'dentro da sua capacidade' : 'acima do que você informou'}</div>
+            <div style="font-size:var(--t-nota);color:var(--grafite)">${meta.viavel ? 'cabe no seu bolso' : 'acima do que você guarda'}</div>
           </div>
         </div>
 
@@ -276,17 +276,17 @@ const Telas = {
           <div class="grade-2">
             <button class="card compacto" style="text-align:left;border:1px solid var(--linha);cursor:pointer;font-family:var(--corpo)" onclick="App.ir('cenarios')">
               <div class="atalho-ic">${icone("balanca",22)}</div><div style="font-weight:600;font-size:13.5px;margin-top:4px">Simular cenários</div>
-              <div style="font-size:11.5px;color:var(--grafite)">Comparar dois formatos</div>
+              <div style="font-size:var(--t-nota);color:var(--grafite)">Dois formatos lado a lado</div>
             </button>
             <button class="card compacto" style="text-align:left;border:1px solid var(--linha);cursor:pointer;font-family:var(--corpo)" onclick="App.ir('fornecedores')">
               <div class="atalho-ic">${icone("proposta",22)}</div><div style="font-weight:600;font-size:13.5px;margin-top:4px">Comparar fornecedores</div>
-              <div style="font-size:11.5px;color:var(--grafite)">Preço + inclusos + condições</div>
+              <div style="font-size:var(--t-nota);color:var(--grafite)">Preço não é tudo</div>
             </button>
           </div>
         </div>
 
         <div class="rodape-app">
-          Noiva Inteligente · seus dados ficam salvos apenas neste dispositivo.
+          Seus dados ficam só neste aparelho. Nada sai daqui.
         </div>
       </div>`;
   },
@@ -303,7 +303,7 @@ const Telas = {
     });
 
     return `
-      ${this.cabecalho('Orçamento inteligente', 'Sua verba, categoria por categoria')}
+      ${this.cabecalho('Orçamento', 'Categoria por categoria')}
       <div class="conteudo">
         <div class="card">
           ${componenteBarraOrcamento(r)}
@@ -361,7 +361,7 @@ const Telas = {
                   </div>
                   <button class="fechar" style="width:26px;height:26px;font-size:12px" onclick="event.stopPropagation();Acoes.removerDespesa('${d.id}')">${icone("fechar",13)}</button>
                 </div>`).join('')
-              : componenteVazio('recibo', 'Nenhum gasto registrado', 'Cada gasto registrado passa pelo Detector de Prejuízo antes de entrar no seu plano.', '')}
+              : componenteVazio('recibo', 'Nenhum gasto registrado', 'Todo gasto passa pelo Detector de Prejuízo antes de entrar no plano.', '')}
           </div>
         </div>
 
@@ -379,7 +379,7 @@ const Telas = {
     const sonhos = (p.tresSonhos || []).filter(Boolean);
 
     return `
-      ${this.cabecalho('Prioridades', 'O que é inegociável para você')}
+      ${this.cabecalho('Prioridades', 'O que você não abre mão')}
       <div class="conteudo">
         ${sonhos.length ? `
         <div class="card card-destaque">
@@ -437,11 +437,11 @@ const Telas = {
 
         <div class="alerta info">
           <span class="ic">${icone("balanca",16)}</span>
-          <span>Eu comparo <strong>preço + o que está incluso + custos extras + condições</strong>. Comparar só preço é como comparar dois contratos diferentes fingindo que são iguais.</span>
+          <span>Comparar só o preço é fingir que dois contratos diferentes são iguais. Eu comparo <strong>preço, inclusos, extras e condições</strong>.</span>
         </div>
 
         ${f.length === 0
-          ? componenteVazio('proposta', 'Nenhum fornecedor ainda', 'A regra que mais economiza dinheiro no casamento inteiro: 3 propostas escritas por categoria, com o mesmo briefing.', '')
+          ? componenteVazio('proposta', 'Nenhum fornecedor ainda', 'Três propostas por categoria, com o mesmo briefing. É a regra que mais economiza no casamento inteiro.', '')
           : Object.entries(porCat).map(([catId, lista]) => {
               const cat = Motor.categoria(catId);
               return `
@@ -507,7 +507,7 @@ const Telas = {
     const economia = comp.diferenca < 0;
 
     return `
-      ${this.cabecalho('Simulador de cenários', 'Duas versões do mesmo casamento')}
+      ${this.cabecalho('Cenários', 'Dois casamentos, lado a lado')}
       <div class="conteudo">
         <div class="card card-destaque" style="text-align:center">
           <div class="rotulo">Diferença estimada</div>
@@ -526,7 +526,7 @@ const Telas = {
 
         <div class="secao" style="margin-top:20px">
           <div class="secao-titulo">Categorias afetadas</div>
-          <p class="secao-desc">Uma mudança nunca fica isolada em uma categoria só.</p>
+          <p class="secao-desc">Mexer em uma coisa mexe em várias. Aqui está o efeito completo.</p>
           <div class="card compacto">
             ${comp.afetadas.length
               ? comp.afetadas.map((c) => `
@@ -577,7 +577,7 @@ const Telas = {
     const concluidas = lista.filter((m) => (Store.estado.missoes[m.id] || {}).status === 'concluida').length;
 
     return `
-      ${this.cabecalho('Missões de economia', 'Ações curtas com retorno real')}
+      ${this.cabecalho('Missões', 'Ações curtas, retorno real')}
       <div class="conteudo">
         <div class="grade-3">
           <div class="mini-stat"><div class="rotulo">Economizado</div><div class="valor positivo">${formatarMoeda(eco.economizado, true)}</div></div>
@@ -624,7 +624,7 @@ const Telas = {
     if (filtro !== 'todas') lista = lista.filter((s) => s.categorias.includes(filtro));
 
     return `
-      ${this.cabecalho('Biblioteca de estratégias', `${ESTRATEGIAS.length} decisões acionáveis`)}
+      ${this.cabecalho('Estratégias', `${ESTRATEGIAS.length} decisões prontas para usar`)}
       <div class="conteudo">
         <div class="chips" style="margin-bottom:14px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:6px">
           <button class="chip ${filtro === 'todas' ? 'ativo' : ''}" onclick="Acoes.filtrarEstrategias('todas')">Para você</button>
@@ -700,11 +700,11 @@ const Telas = {
   calculadoras() {
     const p = Motor.perfil();
     return `
-      ${this.cabecalho('Calculadoras', 'Com as fórmulas à mostra')}
+      ${this.cabecalho('Calculadoras', 'Sem caixa-preta')}
       <div class="conteudo">
         <div class="alerta info">
           <span class="ic">${icone("calculadora",16)}</span>
-          <span>Quantidades por pessoa são <strong>referências iniciais</strong>. Confirme sempre com quem vai produzir — não são padrões universais.</span>
+          <span>Quantidade por pessoa é <strong>ponto de partida</strong>, não regra. Confirme com quem vai produzir.</span>
         </div>
 
         <div class="card">
@@ -805,7 +805,7 @@ const Telas = {
   documentos() {
     const docs = Store.estado.documentos;
     return `
-      ${this.cabecalho('Contratos e documentos', 'Registre o que importa')}
+      ${this.cabecalho('Documentos', 'Prazos, multas e o que ficou de fora')}
       <div class="conteudo">
         <button class="btn btn-primario btn-bloco" onclick="Telas.abrirNovoDocumento()">+ Registrar documento</button>
         <div class="pulo"></div>
@@ -847,7 +847,7 @@ const Telas = {
     });
 
     return `
-      ${this.cabecalho('Modo R$7 mil', 'Uma meta de planejamento')}
+      ${this.cabecalho('Modo R$7 mil', 'Meta de planejamento, não promessa')}
       <div class="conteudo">
         <div class="alerta medio">
           <span class="ic">${icone("alerta",16)}</span>
@@ -912,7 +912,7 @@ const Telas = {
   perfil() {
     const p = Motor.perfil();
     return `
-      ${this.cabecalho('Meus dados', 'Mudou algo? Eu recalculo tudo')}
+      ${this.cabecalho('Meus dados', 'Mudou? Eu recalculo tudo')}
       <div class="conteudo">
         <div class="card">
           <div class="card-titulo">Dinheiro</div>
@@ -962,7 +962,7 @@ const Telas = {
   config() {
     const c = Store.estado.config;
     return `
-      ${this.cabecalho('Configurações', 'Ajustes do seu plano')}
+      ${this.cabecalho('Ajustes', 'Margem, backup e as contas por trás')}
       <div class="conteudo">
         <div class="card">
           <div class="card-titulo">Margem de segurança</div>
@@ -979,10 +979,10 @@ const Telas = {
 
         <div class="card">
           <div class="card-titulo">Seus dados</div>
-          <p class="card-sub">Tudo fica salvo apenas neste navegador. Nada é enviado para nenhum servidor.</p>
+          <p class="card-sub">Tudo fica neste navegador. Nada sai daqui. O backup é a sua garantia se você trocar de aparelho ou limpar os dados.</p>
           <div class="btn-linha" style="margin-top:12px">
             <button class="btn btn-contorno btn-mini" onclick="Acoes.exportar()">Exportar backup</button>
-            <button class="btn btn-contorno btn-mini" onclick="document.getElementById('arquivo-import').click()">Importar</button>
+            <button class="btn btn-contorno btn-mini" onclick="Acoes.importarTexto()">Restaurar</button>
           </div>
           <input type="file" id="arquivo-import" accept="application/json" style="display:none" onchange="Acoes.importar(this)">
         </div>
@@ -1033,7 +1033,7 @@ const Telas = {
 
   assistente() {
     return `
-      ${this.cabecalho('Assistente', 'Conhece o seu casamento inteiro')}
+      ${this.cabecalho('Assistente', 'Conhece o seu plano inteiro')}
       <div class="chat" id="chat-historico"></div>
       <div style="padding:0 16px 8px">
         <div class="chips" id="chat-sugestoes"></div>
@@ -1045,7 +1045,7 @@ const Telas = {
       </div>
       <div style="padding:4px 16px 0">
         <p style="font-size:11px;color:var(--neblina);text-align:center;line-height:1.5">
-          Eu respondo com base nos seus dados. Não invento preços, fornecedores, leis nem disponibilidade.
+          Respondo pelos seus números. Não invento preço, fornecedor, lei nem disponibilidade.
         </p>
       </div>
       <div class="pulo"></div>`;
@@ -1381,7 +1381,7 @@ const Telas = {
       </div>
       <div class="alerta info" style="margin-top:14px">
         <span class="ic">${icone("balanca",16)}</span>
-        <span>O menor preço proposto nem sempre é o menor custo total. Compare a linha <strong>custo total</strong> e leia a linha <strong>não incluso</strong> antes de decidir.</span>
+        <span>O menor preço quase nunca é o menor custo. Olhe a linha <strong>custo total</strong> e leia <strong>não incluso</strong> antes de decidir.</span>
       </div>
       ${lista.length < 3 ? `<div class="alerta medio"><span class="ic">${icone("sino",16)}</span><span>Com ${lista.length} propostas você ainda tem pouca base de comparação. Três é o número que costuma abrir margem de negociação real.</span></div>` : ''}
       <div class="pulo"></div>`
