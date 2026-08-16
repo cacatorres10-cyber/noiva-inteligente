@@ -190,10 +190,7 @@ const Telas = {
     return `
       <div class="topo">
         <div class="topo-linha">
-          <div class="marca">
-            <div class="marca-simbolo">${icone("anel",18)}</div>
-            <div class="marca-nome">Noiva Inteligente</div>
-          </div>
+          ${logoMarca(36)}
           <button class="fechar" style="background:rgba(255,255,255,.18);color:#fff" onclick="abrirMenu()">${icone("menu",18)}</button>
         </div>
         <div style="margin-top:16px;position:relative">

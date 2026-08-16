@@ -29,6 +29,10 @@ const Onboarding = {
         id: 'intro',
         render: () => `
           <div style="text-align:center;padding:24px 6px 10px">
+            <div class="marca-abertura" style="margin-bottom:var(--e5)">
+              ${logoNoiva(96)}
+              <div class="marca-nome">Noiva Inteligente</div>
+            </div>
             ${capaVisual()}
             <h1 style="margin-bottom:var(--e3)">Seu orçamento vira<br>um plano em 5 minutos.</h1>
             <p style="color:var(--grafite)">
@@ -409,10 +413,9 @@ const Onboarding = {
     $('#tela-onboarding').innerHTML = `
       <div class="topo">
         <div class="topo-linha">
-          <div class="marca">
-            <div class="marca-simbolo">${icone("anel", 18)}</div>
-            <div class="marca-nome">Noiva Inteligente</div>
-          </div>
+          ${/* no passo 0 o nome já vem grande logo abaixo; repetir aqui em cima
+                seria a mesma palavra duas vezes na mesma dobra */
+            logoMarca(32, this.indice === 0)}
           <div class="sub">${this.indice}/${passos.length - 1}</div>
         </div>
         <div class="ob-progresso"><span style="width:${progresso}%"></span></div>

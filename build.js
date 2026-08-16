@@ -14,6 +14,7 @@ const path = require('path');
 const RAIZ = __dirname;
 const ORDEM_JS = [
   'icones.js',
+  'logo.js',
   'cenas.js',
   'fotos.js',
   'data-categorias.js',
@@ -95,7 +96,7 @@ const completo = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
 <meta name="theme-color" content="#5b2340">
 <title>Noiva Inteligente</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128141;</text></svg>">
+<link rel="icon" id="favicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'></svg>">
 </head>
 <body>
 ${fragmento}

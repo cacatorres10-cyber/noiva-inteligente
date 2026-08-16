@@ -3,6 +3,10 @@
 (function iniciar() {
   Store.carregar();
 
+  /* a marca na aba do navegador, desenhada pela mesma função da interface */
+  const aba = $('#favicon');
+  if (aba) aba.href = logoFavicon();
+
   // monta a navegação inferior
   $('#nav').innerHTML = TELAS_NAV.map(
     (t) => `<button data-tela="${t.id}" onclick="App.ir('${t.id}')"><span class="ic">${icone(t.ic, 21)}</span><span>${t.nome}</span></button>`

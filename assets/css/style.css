@@ -131,14 +131,32 @@ strong { font-weight: 650; }
 .topo .sub { color: rgba(255, 255, 255, 0.82); font-size: var(--t-micro); font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; position: relative; }
 .topo-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: relative; }
 
-.marca { display: flex; align-items: center; gap: 9px; }
+/* A silhueta é a marca: sai direto sobre o fundo, sem pastilha atrás.
+   O emblema redondo que existia aqui antes competia com o desenho — uma
+   figura alta e estreita dentro de um círculo vira um risco no meio de uma
+   bolha. Solta, ela usa a própria altura como assinatura. */
+.marca { display: flex; align-items: center; gap: 10px; }
 .marca-simbolo {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: linear-gradient(140deg, var(--dourado-claro), var(--dourado));
-  display: grid; place-items: center; font-size: 16px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+  display: grid; place-items: center;
+  color: var(--dourado-claro);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.22));
 }
+.marca-simbolo .logo-noiva { display: block; }
 .marca-nome { font-family: var(--display); font-size: 19px; font-weight: 600; letter-spacing: 0.4px; }
+
+/* Abertura: a marca entra com o véu antes do nome, e depois fica parada.
+   Movimento de chegada, não de enfeite — repetir em loop viraria distração
+   numa tela em que a pessoa vai ler e decidir. */
+.marca-abertura { display: grid; place-items: center; gap: var(--e3); color: var(--vinho); }
+.marca-abertura .logo-noiva { animation: marca-entra 1.1s cubic-bezier(.2, .8, .25, 1) both; }
+.marca-abertura .marca-nome { font-size: var(--t-maior); animation: marca-entra 1.1s cubic-bezier(.2, .8, .25, 1) .18s both; }
+@keyframes marca-entra {
+  from { opacity: 0; transform: translateY(14px) scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marca-abertura .logo-noiva, .marca-abertura .marca-nome { animation: none; }
+}
 
 /* ------------------------------------------------------------ layout */
 .tela { display: none; animation: entra .28s ease; }

@@ -70,6 +70,22 @@ e pode ser publicado em qualquer lugar. A pasta `dist/` não é versionada: é d
 
 ---
 
+## Marca
+
+A silhueta de noiva em `assets/js/logo.js` é vetor, não arquivo de imagem. Ela aparece de
+26px (barra superior) a 96px (abertura), assume a cor do contexto — dourada sobre o vinho,
+vinho sobre a areia — e também é o favicon, tudo a partir da mesma função.
+
+O desenho é montado com uma **máscara SVG**, não com um traçado único. O motivo é prático:
+o buquê, os braços e os vincos do tecido precisam ser espaço *vazado*. Vazado, o fundo
+aparece através deles e a silhueta continua legível sobre qualquer cor; pintado de branco,
+ela só funcionaria sobre fundo claro.
+
+O que degrada primeiro degrada de propósito: abaixo de ~40px os vincos e as fitas somem, e
+sobra a silhueta do vestido — que é o que ainda se reconhece nesse tamanho.
+
+---
+
 ## Ícones
 
 Não há emoji na interface e não há imagem externa. Os ícones ficam em
