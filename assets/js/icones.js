@@ -88,6 +88,7 @@ const ICONES = {
   lupa: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
   raio: '<path d="M13.5 2.5L4 13.5h6.5L10 21.5 20 10.5h-6.5z"/>',
   seta: '<path d="M9 5l7 7-7 7"/>',
+  'seta-cima': '<path d="M12 19.5v-15M5.5 11L12 4.5 18.5 11"/>',
   mais: '<path d="M12 5.5v13M5.5 12h13"/>',
   fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
   menu: '<circle cx="5.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18.5" cy="12" r="1.4"/>',

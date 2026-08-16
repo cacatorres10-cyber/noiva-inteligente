@@ -3,7 +3,16 @@
 const Telas = {
   renderizar(id, params) {
     const alvo = $('#tela-' + id);
-    if (!alvo || typeof this[id] !== 'function') return;
+    /*
+     * Um id errado sai pelo console, não em silêncio. Sem isto, uma tela que
+     * não existe (ou cujo nome mudou) devolve uma página em branco sem erro
+     * nenhum — e página em branco é o defeito mais caro de diagnosticar,
+     * porque não deixa rastro em lugar algum.
+     */
+    if (!alvo || typeof this[id] !== 'function') {
+      console.error(`Telas.renderizar: tela "${id}" não existe`, { secao: !!alvo, funcao: typeof this[id] });
+      return;
+    }
     alvo.innerHTML = this[id](params || {});
     if (typeof this['pos_' + id] === 'function') this['pos_' + id](params || {});
     animarEntrada(alvo);
@@ -261,7 +270,9 @@ const Telas = {
               <span class="icone">${icone("calendario",18)}</span>
               <div class="corpo">
                 <div class="nome">${escapar(tarefa.titulo)}</div>
-                <div class="meta">${tarefa.atrasada ? '<span style="color:var(--vermelho)">Atrasada</span> — ' : ''}fase de ${tarefa.mesInicio} meses antes</div>
+                <!-- sem rótulo de "atrasada": o motor deixou de marcar atraso
+                     de propósito, e este era o último lugar que ainda cobrava -->
+                <div class="meta">${tarefa.mesInicio === 0 ? 'No mês do casamento' : `Fase de ${tarefa.mesInicio} ${tarefa.mesInicio === 1 ? 'mês' : 'meses'} antes`}</div>
               </div>
               <span style="color:var(--neblina)">${icone("seta",15)}</span>
             </div>
@@ -666,7 +677,10 @@ const Telas = {
     /* Fases futuras continuam agrupadas por mês; o acúmulo vira um bloco só. */
     const fases = {};
     futuras.forEach((t) => {
-      const chave = `${t.mesInicio} ${t.mesInicio === 1 ? 'mês' : 'meses'} antes`;
+      /* "0 meses antes" é linguagem de máquina; o mês do casamento tem nome */
+      const chave = t.mesInicio === 0
+        ? 'No mês do casamento'
+        : `${t.mesInicio} ${t.mesInicio === 1 ? 'mês' : 'meses'} antes`;
       (fases[chave] = fases[chave] || []).push(t);
     });
 
@@ -1093,7 +1107,11 @@ const Telas = {
           </div>
         </div>
 
-        <div class="rodape-app">Noiva Inteligente</div>
+        <div class="rodape-app">
+          ${logoNoiva(30)}
+          <div>Noiva Inteligente</div>
+          <div>Tudo roda neste aparelho. Nenhum dado sai daqui.</div>
+        </div>
         <div class="pulo"></div>
       </div>`;
   },
@@ -1102,22 +1120,22 @@ const Telas = {
 
   assistente() {
     return `
+      <div class="chat-tela">
       ${this.cabecalho('Assistente', 'Conhece o seu plano inteiro')}
       <div class="chat" id="chat-historico"></div>
       <div style="padding:0 16px 8px">
         <div class="chips" id="chat-sugestoes"></div>
       </div>
-      <div class="chat-entrada">
-        <textarea id="chat-input" placeholder="Pergunte qualquer coisa sobre o seu plano..." rows="1"
-                  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();Acoes.perguntar()}"></textarea>
-        <button class="btn btn-primario" onclick="Acoes.perguntar()">↑</button>
+      <div class="chat-rodape">
+        <div class="chat-entrada">
+          <textarea id="chat-input" placeholder="Pergunte sobre o seu plano..." rows="1"
+                    aria-label="Sua pergunta"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();Acoes.perguntar()}"></textarea>
+          <button class="btn btn-primario" aria-label="Enviar pergunta" onclick="Acoes.perguntar()">${icone('seta-cima', 20)}</button>
+        </div>
+        <p class="chat-aviso">Respondo pelos seus números. Não invento preço, fornecedor, lei nem disponibilidade.</p>
       </div>
-      <div style="padding:4px 16px 0">
-        <p style="font-size:11px;color:var(--neblina);text-align:center;line-height:1.5">
-          Respondo pelos seus números. Não invento preço, fornecedor, lei nem disponibilidade.
-        </p>
-      </div>
-      <div class="pulo"></div>`;
+      </div>`;
   },
 
   pos_assistente() {

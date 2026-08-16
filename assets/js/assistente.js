@@ -195,7 +195,10 @@ const Assistente = {
     const missoes = Motor.missoesRecomendadas(2);
     const meses = Motor.mesesRestantes();
     const linhas = [`Faltam **${meses} meses** para a data. Nesse estágio, isso é o que muda o jogo:`];
-    tarefas.forEach((t, i) => linhas.push(`${i + 1}. ${t.titulo}${t.atrasada ? ' _(atrasada)_' : ''}`));
+    /* "já dava para começar" no lugar de "atrasada": a tarefa entrou na fila,
+       não passou do prazo. O motor deixou de marcar atraso e o assistente,
+       que é a voz do produto, não podia ser o único lugar a cobrar. */
+    tarefas.forEach((t, i) => linhas.push(`${i + 1}. ${t.titulo}${t.pendente ? ' _(já dava para começar)_' : ''}`));
     if (missoes.length) {
       linhas.push('**E as missões com maior retorno agora:**');
       missoes.forEach((m) => {
@@ -424,14 +427,20 @@ const Assistente = {
     return p ? p.nome.toLowerCase() : '';
   },
 
-  /* Sugestões contextuais mostradas no topo do chat */
+  /*
+   * Sugestões acima do campo de escrever.
+   * São quatro, não seis: seis empurravam o campo para fora da tela, e a
+   * quinta e a sexta nunca eram lidas de qualquer jeito. A ordem é
+   * deliberada — as perguntas que dependem da situação real dela vêm
+   * primeiro, e as genéricas só completam a lista se sobrar espaço.
+   */
   sugestoes() {
-    const s = ['O que você acha do meu orçamento?', 'Onde eu posso economizar?', 'Quanto preciso guardar por mês?'];
     const r = Motor.resumo();
+    const s = ['O que eu faço agora?'];
     if (r.estimativaBottomUp > r.total) s.push('Meu casamento cabe no orçamento?');
-    if (!Store.estado.fornecedores.length) s.push('Como comparar fornecedores?');
     if (Motor.perfil().convidados > 60) s.push('E se eu reduzir os convidados?');
-    s.push('O que eu faço agora?');
-    return s.slice(0, 6);
+    if (!Store.estado.fornecedores.length) s.push('Como comparar fornecedores?');
+    s.push('Onde eu posso economizar?', 'O que você acha do meu orçamento?', 'Quanto preciso guardar por mês?');
+    return s.slice(0, 4);
   },
 };
