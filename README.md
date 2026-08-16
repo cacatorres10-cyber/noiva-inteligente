@@ -26,23 +26,36 @@ Há exportação e importação de backup em JSON dentro de **Configurações**.
 
 ## Onde os dados ficam
 
-Não há cadastro. Tudo é gravado no `localStorage`, que é isolado **por dispositivo e por
-navegador** — cada pessoa que abrir o app no próprio celular tem os próprios dados, sem
-nenhuma mistura entre elas e sem nada trafegando para servidor algum.
+Não há cadastro e não há servidor. Tudo é gravado no `localStorage`, com **múltiplos
+perfis no mesmo aparelho**:
 
-O que isso implica, dito sem rodeio:
+```
+noiva-inteligente:perfis        índice  [{ id, nome, criadoEm, visto }]
+noiva-inteligente:perfil-ativo  id do perfil em uso
+noiva-inteligente:v1:<id>       estado completo daquele perfil
+```
+
+Trocar de perfil em **Mais ferramentas → Trocar de perfil**. Cada um tem o próprio
+orçamento, fornecedores, missões e cronograma, sem nada compartilhado.
+
+O que isso cobre, e o que não cobre:
 
 | Situação | Resultado |
 |---|---|
-| Pessoas diferentes, cada uma no seu aparelho | Dados separados |
+| Pessoas diferentes, cada uma no seu aparelho | Isolado, sempre foi |
+| Pessoas diferentes no **mesmo** aparelho | Isolado, via perfis |
+| A mesma pessoa comparando dois cenários | Isolado, via perfis |
 | A mesma pessoa voltando depois | Continua de onde parou |
 | Limpar os dados do navegador | Perde — por isso existe o backup |
 | Trocar de aparelho | Não acompanha sozinho |
-| Duas pessoas no mesmo aparelho | Uma sobrescreve a outra |
 
-Sincronizar entre aparelhos exigiria identificar a pessoa, e identificar é cadastro. Enquanto
-não houver cadastro, o caminho é **Configurações → Exportar backup**, que gera um JSON
-reimportável em qualquer aparelho.
+A última linha é a única que continua em aberto, e é assim por escolha: sincronizar entre
+aparelhos exige identificar a pessoa em algum servidor, que é justamente o que este produto
+não tem. A ponte é **Ajustes → Exportar backup**, que gera um JSON reimportável em qualquer
+aparelho — e mostra o conteúdo para copiar quando o navegador bloqueia o download.
+
+Quem já usava o app antes dos perfis não perde nada: os dados antigos viram automaticamente
+o primeiro perfil, sem pedir nada.
 
 ---
 

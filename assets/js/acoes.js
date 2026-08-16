@@ -267,6 +267,43 @@ const Acoes = {
     Telas.pos_assistente();
   },
 
+  /* ---------------------------------------------------------- perfis */
+
+  criarPerfil() {
+    const nome = prompt('De quem é este casamento?', '');
+    if (nome === null) return;
+    const id = Store.criarPerfil(nome);
+    Store.trocarPerfil(id);
+    toast('Perfil criado. Vamos montar o plano.');
+    location.reload();
+  },
+
+  trocarPerfil(id) {
+    if (!Store.trocarPerfil(id)) return;
+    location.reload();
+  },
+
+  renomearPerfil(id) {
+    const atual = Store.listarPerfis().find((p) => p.id === id);
+    const nome = prompt('Novo nome para este perfil:', atual ? atual.nome : '');
+    if (nome === null) return;
+    Store.renomearPerfil(id, nome);
+    App.atualizar();
+  },
+
+  excluirPerfil(id) {
+    const p = Store.listarPerfis().find((x) => x.id === id);
+    if (!p) return;
+    if (!confirm(`Excluir "${p.nome}"? Todo o planejamento desse perfil some, e isso não tem volta.`)) return;
+    const eraAtivo = id === Store.perfilAtivoId;
+    Store.excluirPerfil(id);
+    if (eraAtivo) location.reload();
+    else {
+      toast('Perfil excluído.');
+      App.atualizar();
+    }
+  },
+
   /* ---------------------------------------------------------- dados */
 
   /*

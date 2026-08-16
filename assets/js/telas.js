@@ -933,6 +933,52 @@ const Telas = {
       </div>`;
   },
 
+  /* ================================================================== PERFIS */
+
+  perfis() {
+    const lista = Store.listarPerfis().sort((a, b) => (b.visto || '').localeCompare(a.visto || ''));
+    const ativo = Store.perfilAtivoId;
+
+    return `
+      ${this.cabecalho('Perfis', 'Vários casamentos, um aparelho')}
+      <div class="conteudo">
+        <div class="alerta info">
+          <span class="ic">${icone('info', 16)}</span>
+          <span>Cada perfil guarda o próprio orçamento, fornecedores e cronograma.
+          Nada é compartilhado entre eles — e nada sai deste aparelho.</span>
+        </div>
+
+        ${lista
+          .map((x) => {
+            const meu = x.id === ativo;
+            return `
+          <div class="card compacto perfil-item ${meu ? 'ativo' : ''}">
+            <div class="perfil-linha">
+              <span class="perfil-ic">${icone(meu ? 'ok' : 'pessoas', 20)}</span>
+              <div class="perfil-corpo">
+                <div class="perfil-nome">${escapar(x.nome)}</div>
+                <div class="card-sub">${meu ? 'Em uso agora' : 'Última vez em ' + formatarData(x.visto || x.criadoEm)}</div>
+              </div>
+              ${meu ? '' : `<button class="btn btn-secundario btn-mini" onclick="Acoes.trocarPerfil('${x.id}')">Abrir</button>`}
+            </div>
+            <div class="perfil-acoes">
+              <button class="btn-texto" onclick="Acoes.renomearPerfil('${x.id}')">Renomear</button>
+              ${lista.length > 1 ? `<button class="btn-texto perigo" onclick="Acoes.excluirPerfil('${x.id}')">Excluir</button>` : ''}
+            </div>
+          </div>`;
+          })
+          .join('')}
+
+        <button class="btn btn-primario btn-bloco" onclick="Acoes.criarPerfil()">Novo perfil</button>
+
+        <div class="aviso-legal" style="margin-top:var(--e4)">
+          Perfis separam pessoas <strong>neste aparelho</strong>. Para levar um planejamento
+          para outro celular, use o backup em Ajustes — sem servidor, não existe sincronização automática.
+        </div>
+        <div class="pulo"></div>
+      </div>`;
+  },
+
   /* =================================================================== PERFIL */
 
   perfil() {

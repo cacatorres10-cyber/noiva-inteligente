@@ -68,6 +68,7 @@ const MENU_EXTRA = [
   { id: 'documentos', nome: 'Contratos e documentos', ic: 'documentacao', desc: 'Registrar valores, prazos e multas' },
   { id: 'modo7mil', nome: 'Modo R$7 mil', ic: 'raio', desc: 'Meta de planejamento enxuto' },
   { id: 'perfil', nome: 'Meus dados', ic: 'pessoas', desc: 'Orçamento, data, convidados, estilo' },
+  { id: 'perfis', nome: 'Trocar de perfil', ic: 'troca', desc: 'Mais de uma pessoa neste aparelho' },
   { id: 'config', nome: 'Configurações', ic: 'engrenagem', desc: 'Margem de segurança, backup, reiniciar' },
 ];
 

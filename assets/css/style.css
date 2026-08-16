@@ -437,6 +437,27 @@ input[type="range"] { width: 100%; accent-color: var(--vinho); }
 
 .pulo { height: 10px; }
 
+/* ------------------------------------------------------- perfis */
+.perfil-item { border: 1.5px solid var(--linha); }
+.perfil-item.ativo { border-color: var(--vinho); background: linear-gradient(160deg, #fff, var(--blush) 220%); }
+.perfil-linha { display: flex; align-items: center; gap: var(--e3); }
+.perfil-ic {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center; background: var(--blush); color: var(--vinho);
+}
+.perfil-item.ativo .perfil-ic { background: var(--vinho); color: #fff; }
+.perfil-corpo { flex: 1; min-width: 0; }
+.perfil-nome { font-family: var(--display); font-size: var(--t-medio); font-weight: 600; line-height: 1.25; }
+.perfil-acoes { display: flex; gap: var(--e4); margin-top: var(--e3); padding-top: var(--e3); border-top: 1px solid var(--linha); }
+
+.btn-texto {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--corpo); font-size: var(--t-nota); font-weight: 600;
+  color: var(--vinho); text-decoration: underline; text-underline-offset: 3px;
+}
+.btn-texto.perigo { color: var(--vermelho); }
+.btn-texto:hover { opacity: .75; }
+
 /* --------------------------------------------- cards de estratégia */
 .legenda-niveis {
   display: flex; flex-wrap: wrap; gap: var(--e4);
