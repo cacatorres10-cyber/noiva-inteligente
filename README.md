@@ -99,17 +99,19 @@ tipográfica cai em serifas reais (Iowan, Palatino, Georgia) que sustentam o tom
 
 ### Fotografias
 
-Há dois slots de foto — a abertura do onboarding e o topo de "Meu Plano Inteligente".
-Coloque as imagens em `assets/fotos/` com os nomes indicados em
-[`assets/fotos/LEIA-ME.md`](assets/fotos/LEIA-ME.md) e elas entram sozinhas.
+São **23 slots**: dois de acolhimento (abertura do onboarding e topo de "Meu Plano
+Inteligente") e um por categoria, usado na miniatura da lista de orçamento e na capa da
+gaveta da categoria. Coloque as imagens em `assets/fotos/` e `assets/fotos/categorias/`
+com os nomes indicados em [`assets/fotos/LEIA-ME.md`](assets/fotos/LEIA-ME.md) — elas
+entram sozinhas, sem tocar em código, e `build.js` as embute como data URI no arquivo único.
 
-Sem as fotos o app fica completo: cada slot cai na ilustração vetorial, sem placeholder
-quebrado. Isso é deliberado — a ferramenta não pode depender de um arquivo que talvez nunca
-seja baixado.
+Sem as fotos o app fica completo: cada slot cai na ilustração vetorial correspondente, sem
+placeholder quebrado. Isso é deliberado — a ferramenta não pode depender de um arquivo que
+talvez nunca seja baixado.
 
-A foto entra só onde ela ajuda: nas duas telas de acolhimento. As telas de números
-(orçamento, cenários, fornecedores) continuam sem imagem, porque ali a foto competiria com
-a informação que a pessoa foi ler.
+A foto entra só onde ela ajuda: acolhimento e identificação de categoria. As telas de
+números (cenários, comparador de fornecedores, calculadoras) continuam sem imagem, porque
+ali a foto competiria com a informação que a pessoa foi ler.
 
 ---
 
@@ -128,14 +130,14 @@ consegue criar o site do Pages, por isso esse primeiro clique é manual.
 
 | Módulo | O que resolve |
 |---|---|
-| **Onboarding conversacional** | 18 perguntas + a pergunta obrigatória das 3 coisas inegociáveis |
+| **Onboarding conversacional** | 14 perguntas + a pergunta obrigatória das 3 coisas inegociáveis |
 | **Meu Plano Inteligente** | Orçamento recomendado, distribuição, formato sugerido, 5 primeiras ações, meta mensal, projeção |
-| **Orçamento inteligente** | 22 categorias com planejado / contratado / pago / restante / vencimento / parcelas |
+| **Orçamento inteligente** | 21 categorias com planejado / contratado / pago / restante / vencimento / parcelas |
 | **Detector de prejuízo** | Analisa cada gasto contra orçamento, prioridade, itens não inclusos e alternativas |
 | **Simulador de cenários** | Compara dois formatos lado a lado com as categorias afetadas e o impacto na experiência |
 | **Modo R$7 mil** | Meta de planejamento enxuto com substituições sugeridas — nunca uma garantia de preço |
-| **Missões de economia** | 15 ações curtas com objetivo, motivo, dificuldade, tempo e economia potencial |
-| **Biblioteca de estratégias** | 45 estratégias acionáveis com problema, solução, quando usar, riscos e passo a passo |
+| **Missões de economia** | 14 ações curtas com objetivo, motivo, dificuldade, tempo e economia potencial |
+| **Biblioteca de estratégias** | 47 estratégias acionáveis com problema, solução, quando usar, riscos e passo a passo |
 | **Fornecedores** | Cadastro e comparador de preço + inclusos + extras + condições |
 | **Cronograma adaptativo** | Tarefas por fase, calculadas a partir dos meses restantes |
 | **Calculadoras** | Quantidades, parcelas e poupança — com todas as fórmulas à mostra |
@@ -208,9 +210,9 @@ index.html
 assets/
   css/style.css              sistema visual
   js/
-    data-categorias.js       22 categorias, dependências, estilos, períodos, fatores
-    data-estrategias.js      45 estratégias completas + níveis de economia
-    data-missoes.js          15 missões + cronograma por fase
+    data-categorias.js       21 categorias, 5 regras de dependência, estilos, períodos, fatores
+    data-estrategias.js      47 estratégias completas + níveis de economia
+    data-missoes.js          14 missões + 31 tarefas de cronograma
     store.js                 estado e persistência
     engine.js                motor de cálculo (todas as fórmulas)
     assistente.js            assistente contextual, roda no dispositivo
