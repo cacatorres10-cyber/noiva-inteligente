@@ -23,6 +23,7 @@ const ORDEM_JS = [
   'store.js',
   'ui.js',
   'engine.js',
+  'consultoria.js',
   'assistente.js',
   'telas.js',
   'onboarding.js',

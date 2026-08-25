@@ -19,6 +19,32 @@ const Assistente = {
     return { perfil: p, resumo: r, meta, dist: Motor.distribuir() };
   },
 
+  /*
+   * Contexto da camada de consultoria. É mais enxuto que o de cima e usa
+   * nomes curtos porque cada tópico o recebe como argumento único.
+   *
+   * custoConvidado é o número que mais muda conversa no app inteiro: soma o
+   * planejado de todas as categorias que escalam com gente e divide pelo
+   * número de convidados. É o que transforma "corta a lista" — que é um
+   * conselho vazio — em "cada nome custa tanto, decida sabendo".
+   */
+  contextoConsultoria() {
+    const p = Motor.perfil();
+    const r = Motor.resumo();
+    const dist = Motor.distribuir();
+
+    let custoConvidado = null;
+    if (p.convidados > 0) {
+      const soma = CATEGORIAS.filter((c) => c.dependeConvidados).reduce(
+        (acc, c) => acc + ((dist[c.id] && dist[c.id].planejado) || 0),
+        0
+      );
+      if (soma > 0) custoConvidado = soma / p.convidados;
+    }
+
+    return { p, r, dist, custoConvidado, meses: Motor.mesesRestantes() };
+  },
+
   faltaContexto() {
     const p = Motor.perfil();
     const faltas = [];
@@ -34,8 +60,20 @@ const Assistente = {
     const q = (pergunta || '').toLowerCase().trim();
     if (!q) return this.bloco('Pode escrever sua pergunta — eu respondo com base no seu plano.');
 
+    /*
+     * A camada de consultoria vem antes da checagem de contexto de propósito.
+     * "Como eu corto a lista sem magoar ninguém?" e "o que olhar no contrato?"
+     * não dependem de número nenhum — e barrar essas perguntas por falta de
+     * orçamento preenchido era mandar embora justamente quem ainda não tinha
+     * terminado de configurar o app.
+     *
+     * Ela vem depois dos intents financeiros, porém, porque quem pergunta
+     * "quanto eu guardo por mês" quer a conta dela, não um texto sobre prazos.
+     */
+    const achado = consultoriaMatch(q);
     const faltas = this.faltaContexto();
     if (faltas.length && !/orçamento total|quanto posso/.test(q)) {
+      if (achado) return this.responderConsultoria(achado.topico);
       return this.bloco(
         `Ainda me falta ${faltas.join(', ')}. Sem isso qualquer resposta minha seria chute, e eu prefiro não chutar.`,
         [{ tipo: 'acao', texto: 'Completar meus dados', tela: 'perfil' }]
@@ -58,11 +96,24 @@ const Assistente = {
       { re: /(vestido|foto|buffet|comida|bebida|decoraç|decorac|flores|música|musica|bolo|local|convite|lembrancinha)/, fn: () => this.sobreCategoria(q) },
     ];
 
+    /* frase específica de consultoria ganha dos intents de palavra única */
+    if (achado && achado.ponto >= CONSULTORIA_FRASE) return this.responderConsultoria(achado.topico);
+
     for (const it of intents) {
       if (it.re.test(q)) return it.fn();
     }
 
+    if (achado) return this.responderConsultoria(achado.topico);
+
     return this.fallback(q);
+  },
+
+  /* Monta a resposta de um tópico de consultoria com os números dela. */
+  responderConsultoria(topico) {
+    const acoes = (topico.acoes || []).map((a) =>
+      a.tela ? { tipo: 'acao', texto: a.texto, tela: a.tela } : { tipo: 'pergunta', texto: a.texto, pergunta: a.pergunta }
+    );
+    return this.bloco(topico.resposta(this.contextoConsultoria()), acoes);
   },
 
   /* --------------------------------------------------------- respostas */
@@ -354,15 +405,23 @@ const Assistente = {
   fallback(q) {
     const catId = this.detectarCategoria(q);
     if (catId) return this.sobreCategoria(q);
+    /*
+     * Beco sem saída era o pior desfecho possível: a pessoa perguntava, ouvia
+     * "não sei" e saía da tela. Agora o não-sei vem acompanhado do mapa do que
+     * ele sabe — e os assuntos vêm da própria lista de tópicos, então incluir
+     * um tópico novo já o coloca aqui sem ninguém lembrar de atualizar nada.
+     */
+    const assuntos = CONSULTORIA.map((t) => t.titulo.toLowerCase());
     return this.bloco(
       [
-        'Não tenho informação suficiente para afirmar isso com segurança.',
-        'Eu consigo te ajudar bem com: analisar seu orçamento, dizer onde economizar sem mexer nas suas prioridades, calcular quanto guardar por mês, avaliar um gasto antes de você fechar, comparar cenários e dizer o que fazer agora.',
-        'Se for sobre preço de fornecedor na sua região, eu não tenho essa informação — mas se você me passar os valores que recebeu, eu comparo com você.',
+        'Essa eu não sei responder com segurança, e prefiro dizer isso a chutar.',
+        '**Sobre o seu dinheiro** eu respondo bem: analiso o orçamento, digo onde economizar sem mexer nas suas prioridades, calculo quanto guardar por mês, avalio um gasto antes de você fechar e comparo cenários.',
+        `**Sobre organizar o casamento** eu falo de ${assuntos.slice(0, 6).join(', ')} e mais alguns.`,
+        'O que eu não tenho é preço de fornecedor da sua região — isso ninguém consegue saber sem cotar. Mas me passe os valores que você recebeu e eu comparo com você.',
       ].join('\n\n'),
       [
         { tipo: 'acao', texto: 'Analisar meu orçamento', pergunta: 'o que você acha do meu orçamento?' },
-        { tipo: 'acao', texto: 'Onde eu posso economizar?', pergunta: 'onde eu posso economizar?' },
+        { tipo: 'acao', texto: 'Cortar a lista de convidados', pergunta: 'como cortar a lista de convidados?' },
         { tipo: 'acao', texto: 'O que eu faço agora?', pergunta: 'o que eu faço agora?' },
       ]
     );
@@ -436,11 +495,47 @@ const Assistente = {
    */
   sugestoes() {
     const r = Motor.resumo();
-    const s = ['O que eu faço agora?'];
-    if (r.estimativaBottomUp > r.total) s.push('Meu casamento cabe no orçamento?');
-    if (Motor.perfil().convidados > 60) s.push('E se eu reduzir os convidados?');
-    if (!Store.estado.fornecedores.length) s.push('Como comparar fornecedores?');
-    s.push('Onde eu posso economizar?', 'O que você acha do meu orçamento?', 'Quanto preciso guardar por mês?');
-    return s.slice(0, 4);
+    const p = Motor.perfil();
+    const meses = Motor.mesesRestantes();
+
+    /* Uma de dinheiro e uma de organização sempre convivem na lista: quem
+       chega aqui não sabe que o assistente faz as duas coisas, e sugestão
+       só de orçamento faz parecer que ele é uma calculadora. */
+    const dinheiro = ['O que eu faço agora?'];
+    if (r.estimativaBottomUp > r.total) dinheiro.push('Meu casamento cabe no orçamento?');
+    if (p.convidados > 60) dinheiro.push('E se eu reduzir os convidados?');
+    dinheiro.push('Onde eu posso economizar?', 'Quanto preciso guardar por mês?');
+
+    const organizar = [];
+    if (p.convidados > 60) organizar.push('Como cortar a lista de convidados?');
+    if (!Store.estado.fornecedores.length) organizar.push('O que eu devo perguntar a um fornecedor?');
+    if (Store.estado.fornecedores.length) organizar.push('O que eu devo olhar no contrato?');
+    if (meses !== null && meses <= 3) organizar.push('Como fazer o roteiro do dia?');
+    organizar.push('Como lidar com a família sobre a lista?', 'Estou ansiosa, e agora?');
+
+    /*
+     * Fora o que ela já perguntou. Sugerir "Como cortar a lista?" logo abaixo
+     * da resposta sobre cortar a lista faz o assistente parecer que não
+     * escutou — e as respostas já trazem os próprios encaminhamentos, então
+     * a lista fixa aqui só precisa cobrir o que ainda não foi conversado.
+     */
+    const jaPerguntou = new Set(
+      (Store.estado._chat || [])
+        .filter((m) => m.quem === 'eu')
+        .map((m) => {
+          const x = consultoriaMatch(m.texto);
+          return x ? x.topico.id : null;
+        })
+        .filter(Boolean)
+    );
+    const inedita = (s) => {
+      const x = consultoriaMatch(s);
+      return !x || !jaPerguntou.has(x.topico.id);
+    };
+
+    return [dinheiro[0], organizar[0], dinheiro[1], organizar[1], dinheiro[2], organizar[2]]
+      .filter(Boolean)
+      .filter(inedita)
+      .slice(0, 3);
   },
 };

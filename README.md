@@ -141,7 +141,7 @@ consegue criar o site do Pages, por isso esse primeiro clique é manual.
 | **Fornecedores** | Cadastro e comparador de preço + inclusos + extras + condições |
 | **Cronograma adaptativo** | Tarefas por fase, calculadas a partir dos meses restantes |
 | **Calculadoras** | Quantidades, parcelas e poupança — com todas as fórmulas à mostra |
-| **Assistente contextual** | Responde a partir do estado real da usuária, roda 100% no dispositivo |
+| **Assistente contextual** | Duas camadas: as contas dela (14 respostas do estado real) e a consultoria de assessoria (15 tópicos) — tudo no dispositivo |
 | **Contratos e documentos** | Registro de valores, prazos, multas e pontos de atenção |
 
 ---
@@ -215,6 +215,7 @@ assets/
     data-missoes.js          14 missões + 31 tarefas de cronograma
     store.js                 estado e persistência
     engine.js                motor de cálculo (todas as fórmulas)
+    consultoria.js           15 tópicos de assessoria + casamento de intenção
     assistente.js            assistente contextual, roda no dispositivo
     ui.js                    helpers, navegação, componentes
     telas.js                 todas as telas e gavetas

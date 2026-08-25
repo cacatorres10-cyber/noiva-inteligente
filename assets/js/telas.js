@@ -1144,7 +1144,10 @@ const Telas = {
       Store.estado._chat = [
         {
           quem: 'ia',
-          texto: `Oi! Eu já conheço o seu plano: orçamento de ${formatarMoeda(Motor.resumo().total)}, ${Motor.perfil().convidados} convidados e ${Motor.mesesRestantes()} meses até a data.\n\nPode perguntar o que quiser — inclusive as coisas difíceis, tipo "isso cabe no meu bolso?".`,
+          /* A abertura diz as duas coisas que ele faz. Falando só de dinheiro,
+             ninguém descobria que dá para perguntar sobre a lista, a sogra,
+             o contrato ou o dia — e essas são metade das dúvidas reais. */
+          texto: `Oi! Eu já conheço o seu plano: orçamento de ${formatarMoeda(Motor.resumo().total)}, ${Motor.perfil().convidados} convidados e ${Motor.mesesRestantes()} meses até a data.\n\nPergunta sobre **dinheiro** — se cabe, quanto guardar, onde economizar — e também sobre **organizar**: cortar a lista sem magoar ninguém, o que perguntar a um fornecedor, o que olhar no contrato, como montar o roteiro do dia.\n\nPode vir com as difíceis. Inclusive "estou surtando, e agora?".`,
         },
       ];
     }

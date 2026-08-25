@@ -365,7 +365,14 @@ input[type="range"] { width: 100%; accent-color: var(--vinho); }
 .msg.ia { background: var(--branco); border: 1px solid var(--linha); border-bottom-left-radius: 5px; box-shadow: var(--sombra); }
 .msg.eu { background: var(--vinho); color: #fff; margin-left: auto; border-bottom-right-radius: 5px; }
 .msg strong { font-weight: 700; }
-.msg em { color: var(--grafite); font-style: normal; font-size: 12.5px; display: block; margin-top: 6px; }
+/* Itálico é itálico, e inline.
+   Este seletor era `display:block` com corpo menor porque, quando foi
+   escrito, o único uso de _..._ no assistente era uma nota de rodapé
+   ocupando o parágrafo inteiro. A camada de consultoria usa itálico no meio
+   da frase — para rótulo, fala citada e exemplo — e ali o bloco quebrava a
+   linha no meio da oração. Nota de rodapé continua legível: ela já vive
+   sozinha no próprio parágrafo. */
+.msg em { font-style: italic; color: inherit; }
 .msg.ia p { margin: 0 0 9px; }
 .msg.ia p:last-child { margin-bottom: 0; }
 /* O campo de escrever fica colado no rodapé, acima da navegação, e não no
