@@ -231,14 +231,16 @@ const Telas = {
 
         <div class="grade-2">
           <div class="mini-stat">
-            <div class="rotulo">Economia potencial</div>
+            <div class="rotulo">Economia</div>
             <div class="valor positivo" data-contar="${eco.potencial}">${formatarMoeda(eco.potencial)}</div>
-            <div style="font-size:var(--t-nota);color:var(--grafite)">ainda não confirmada</div>
+            <div class="nota-stat">potencial, não confirmada</div>
           </div>
           <div class="mini-stat">
             <div class="rotulo">Meta mensal</div>
             <div class="valor ${meta.viavel ? '' : 'negativo'}">${formatarMoeda(meta.meta)}</div>
-            <div style="font-size:var(--t-nota);color:var(--grafite)">${meta.viavel ? 'cabe no seu bolso' : 'acima do que você guarda'}</div>
+            <!-- a nota herda o estado do número: meta que não cabe é um
+                 problema, e problema escrito em cinza não parece problema -->
+            <div class="nota-stat ${meta.viavel ? 'ok' : 'alerta'}">${meta.viavel ? 'cabe no seu bolso' : 'não cabe hoje'}</div>
           </div>
         </div>
 
@@ -315,11 +317,17 @@ const Telas = {
       <div class="conteudo">
         <div class="card">
           ${componenteBarraOrcamento(r)}
-          <div class="grade-2" style="margin-top:14px;gap:8px">
-            <div><div class="rotulo">Total</div><div class="numero-medio">${formatarMoeda(r.total)}</div></div>
-            <div><div class="rotulo">Reserva (${r.margemPct}%)</div><div class="numero-medio">${formatarMoeda(r.reserva)}</div></div>
-            <div><div class="rotulo">Contratado</div><div class="numero-medio">${formatarMoeda(r.contratado)}</div></div>
-            <div><div class="rotulo">A pagar</div><div class="numero-medio">${formatarMoeda(r.aPagar)}</div></div>
+          <!-- O total lidera; os outros três são desdobramentos dele. Quatro
+               números do mesmo tamanho não têm hierarquia, e a pessoa precisa
+               varrer os quatro para achar o que veio ver. -->
+          <div class="resumo-total">
+            <div class="rotulo">Orçamento total</div>
+            <div class="numero-grande">${formatarMoeda(r.total)}</div>
+          </div>
+          <div class="resumo-tres">
+            <div><div class="rotulo">Reserva ${r.margemPct}%</div><div class="v">${formatarMoeda(r.reserva, true)}</div></div>
+            <div><div class="rotulo">Contratado</div><div class="v">${formatarMoeda(r.contratado, true)}</div></div>
+            <div><div class="rotulo">A pagar</div><div class="v ${r.aPagar > 0 ? 'atencao' : ''}">${formatarMoeda(r.aPagar, true)}</div></div>
           </div>
         </div>
 
@@ -335,17 +343,21 @@ const Telas = {
               ${cats.map((c) => {
                 const d = dist[c.id];
                 const excedido = d.contratado > d.planejado && d.planejado > 0;
+                const inegociavel = Motor.ehInegociavel(c.id);
+                const simplificavel = Motor.ehSimplificavel(c.id);
+                const nota = inegociavel
+                  ? 'Uma das suas três'
+                  : simplificavel
+                    ? 'Você aceita simplificar'
+                    : `Prioridade ${d.prioridade}`;
                 return `
-                <div style="padding:11px 0;border-bottom:1px solid var(--linha);cursor:pointer" onclick="Telas.abrirCategoria('${c.id}')">
-                  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-                    <span style="font-size:14.5px"><span class="cat-nome">${miniaturaCategoria(c.id, 16)}${c.nome}</span>
-                      <span style="color:var(--neblina);font-size:11px">· prioridade ${d.prioridade}</span>
-                    </span>
-                    <span style="text-align:right;white-space:nowrap">
-                      <strong style="font-family:var(--display);font-size:15px">${formatarMoeda(d.planejado, true)}</strong>
-                      ${d.contratado ? `<br><span style="font-size:11px;color:${excedido ? 'var(--vermelho)' : 'var(--grafite)'}">contratado ${formatarMoeda(d.contratado, true)}</span>` : ''}
-                    </span>
-                  </div>
+                <div class="cat-linha ${d.contratado ? '' : 'sem-gasto'}" onclick="Telas.abrirCategoria('${c.id}')">
+                  <span class="cl-mini">${miniaturaCategoria(c.id, 18)}</span>
+                  <span class="cl-nome">${c.nome}</span>
+                  <span class="cl-meta ${inegociavel ? 'protegida' : ''}">${inegociavel ? icone('estrela', 11, 'ic-inline') + ' ' : ''}${nota}</span>
+                  <span class="cl-valor">${formatarMoeda(d.planejado, true)}
+                    ${d.contratado ? `<small class="${excedido ? 'excedido' : ''}">contratado ${formatarMoeda(d.contratado, true)}</small>` : ''}
+                  </span>
                   <div class="barra-cat"><span class="${excedido ? 'excedido' : ''}" style="width:${pct(d.contratado || 0, d.planejado || 1)}%"></span></div>
                 </div>`;
               }).join('')}
@@ -632,7 +644,7 @@ const Telas = {
           </div>` : ''}
 
           ${r.divergente ? `
-          <div class="alerta ${Math.abs(r.diferenca) > 10 ? 'atencao' : 'info'}" style="margin-top:var(--e4)">
+          <div class="alerta ${Math.abs(r.diferenca) > 10 ? 'medio' : 'info'}" style="margin-top:var(--e4)">
             <span class="ic">${icone('alerta', 16)}</span>
             <span>
               Sua lista tem <strong>${r.total}</strong> ${r.total === 1 ? 'lugar' : 'lugares'} e o plano está calculado para <strong>${r.noPlano}</strong>.
