@@ -138,6 +138,7 @@ consegue criar o site do Pages, por isso esse primeiro clique é manual.
 | **Modo R$7 mil** | Meta de planejamento enxuto com substituições sugeridas — nunca uma garantia de preço |
 | **Missões de economia** | 14 ações curtas com objetivo, motivo, dificuldade, tempo e economia potencial |
 | **Biblioteca de estratégias** | 47 estratégias acionáveis com problema, solução, quando usar, riscos e passo a passo |
+| **Lista de convidados** | Nomes por círculo (1/2/3), acompanhante, criança e confirmação — com o custo de cada lugar |
 | **Fornecedores** | Cadastro e comparador de preço + inclusos + extras + condições |
 | **Cronograma adaptativo** | Tarefas por fase, calculadas a partir dos meses restantes |
 | **Calculadoras** | Quantidades, parcelas e poupança — com todas as fórmulas à mostra |
@@ -175,6 +176,11 @@ Estas regras estão implementadas no código, não são só intenção:
 - **Não inventa economia.** *Economizado* (confirmado pela usuária), *economia potencial*
   (estimativa das missões abertas) e *gasto evitado* são três números separados.
 - **Não diz que um preço é "caro".** Diz quanto do orçamento aquele gasto consome.
+- **Protege as três inegociáveis pelo nome.** `prioridadesTop` é lido pelo motor em cada
+  recomendação — não traduzido em nota e esquecido. O detector diz *"é uma das suas três"*,
+  o assistente as exclui da busca por economia e o alerta de excesso de verba nunca dispara
+  nelas. Mudança de formato (convidados, data, estilo) é exceção deliberada: ela mexe na
+  escala, não rebaixa nenhuma categoria.
 - **Não incentiva endividamento.** Quando a meta não cabe na capacidade de poupança, sugere
   ajustar data ou formato antes de qualquer menção a crédito.
 - **Não substitui avaliação jurídica.** O módulo de documentos avisa isso explicitamente.
@@ -218,7 +224,7 @@ assets/
     consultoria.js           15 tópicos de assessoria + casamento de intenção
     assistente.js            assistente contextual, roda no dispositivo
     ui.js                    helpers, navegação, componentes
-    telas.js                 todas as telas e gavetas
+    telas.js                 todas as telas e gavetas (17 telas)
     onboarding.js            onboarding conversacional
     acoes.js                 mutações de estado
     app.js                   inicialização

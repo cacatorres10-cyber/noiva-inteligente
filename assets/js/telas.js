@@ -577,6 +577,112 @@ const Telas = {
     return notas.map(([ic, t]) => `<div class="lista-item"><span class="icone">${icone(ic,18)}</span><div class="corpo"><div class="meta" style="font-size:13px;color:var(--carvao)">${escapar(t)}</div></div></div>`).join('');
   },
 
+  /* ============================================================== CONVIDADOS */
+
+  /*
+   * A lista existe para o corte ter onde acontecer.
+   *
+   * O assistente ensina a cortar por critério — círculo 1, 2 e 3 — e até
+   * agora isso morria como conselho, porque "90 convidados" era um número
+   * solto sem nenhum lugar para os 90 nomes. Aqui o método vira execução, e
+   * o custo por convidado aparece do lado de cada corte possível.
+   */
+  convidados(params) {
+    const lista = Store.estado.convidados || [];
+    const r = Motor.resumoConvidados();
+    const filtro = (params && params.filtro) || Store.estado._filtroConvidados || 'todos';
+    Store.estado._filtroConvidados = filtro;
+
+    const visiveis = lista.filter((g) => {
+      if (filtro === 'todos') return true;
+      if (filtro === 'pendente' || filtro === 'confirmado' || filtro === 'recusado') return (g.status || 'pendente') === filtro;
+      return String(g.circulo || 3) === filtro;
+    });
+
+    const chip = (id, rotulo, n) =>
+      `<button class="chip ${filtro === id ? 'ativo' : ''}" onclick="Acoes.filtrarConvidados('${id}')">${rotulo}${n !== undefined ? ` <b>${n}</b>` : ''}</button>`;
+
+    return `
+      ${this.cabecalho('Convidados', 'Cada nome tem um preço')}
+      <div class="conteudo">
+        <button class="btn btn-primario btn-bloco" onclick="Telas.abrirNovoConvidado()">+ Adicionar convidado</button>
+
+        ${lista.length === 0
+          ? `<div class="pulo"></div>
+             ${componenteVazio('pessoas', 'A lista ainda está vazia',
+               'Comece pelos nomes que você não consegue imaginar a cerimônia sem. Os difíceis ficam para depois — e eu ajudo com o critério.', '')}
+             <div class="alerta info" style="margin-top:var(--e4)">
+               <span class="ic">${icone('coracao', 16)}</span>
+               <span>Os três círculos: <strong>1</strong> quem você não imagina a cerimônia sem · <strong>2</strong> convivência real nos últimos dois anos · <strong>3</strong> quem você chamaria por obrigação social.</span>
+             </div>`
+          : `
+          <div class="grade-3" style="margin-top:var(--e4)">
+            <div class="mini-stat"><div class="rotulo">Na lista</div><div class="valor">${r.total}</div></div>
+            <div class="mini-stat"><div class="rotulo">Confirmados</div><div class="valor positivo">${r.confirmados}</div></div>
+            <div class="mini-stat"><div class="rotulo">Pendentes</div><div class="valor">${r.pendentes}</div></div>
+          </div>
+
+          ${r.custoPorConvidado > 0 ? `
+          <div class="card card-destaque" style="margin-top:var(--e4)">
+            <div class="card-titulo">${formatarMoeda(r.custoPorConvidado)} por convidado</div>
+            <p class="card-sub" style="margin:0">
+              É o que cada nome custa entre comida, bebida, bolo, doces, convite, lembrancinha e a parte do
+              local e da decoração que escala com gente. A lista inteira soma <strong>${formatarMoeda(r.custoTotal)}</strong>.
+            </p>
+          </div>` : ''}
+
+          ${r.divergente ? `
+          <div class="alerta ${Math.abs(r.diferenca) > 10 ? 'atencao' : 'info'}" style="margin-top:var(--e4)">
+            <span class="ic">${icone('alerta', 16)}</span>
+            <span>
+              Sua lista tem <strong>${r.total}</strong> ${r.total === 1 ? 'lugar' : 'lugares'} e o plano está calculado para <strong>${r.noPlano}</strong>.
+              ${r.diferenca > 0
+                ? `São ${r.diferenca} a mais — cerca de ${formatarMoeda(r.diferenca * r.custoPorConvidado)} que ainda não estão no orçamento.`
+                : `São ${Math.abs(r.diferenca)} a menos — cerca de ${formatarMoeda(Math.abs(r.diferenca) * r.custoPorConvidado)} sobrando.`}
+              <button class="btn-texto" onclick="Acoes.aplicarListaAoPlano()">Usar ${r.total} no plano</button>
+            </span>
+          </div>` : ''}
+
+          <div class="chips" style="margin-top:var(--e5)">
+            ${chip('todos', 'Todos', r.total)}
+            ${chip('1', 'Círculo 1', r.porCirculo[1])}
+            ${chip('2', 'Círculo 2', r.porCirculo[2])}
+            ${chip('3', 'Círculo 3', r.porCirculo[3])}
+            ${chip('pendente', 'Pendentes', r.pendentes)}
+            ${chip('confirmado', 'Confirmados', r.confirmados)}
+            ${r.recusados ? chip('recusado', 'Recusados', r.recusados) : ''}
+          </div>
+
+          ${filtro === '3' && r.porCirculo[3] > 0 ? `
+          <div class="alerta info" style="margin-top:var(--e4)">
+            <span class="ic">${icone('alvo', 16)}</span>
+            <span>Círculo 3 é onde o corte dói menos. Estes ${r.porCirculo[3]} ${r.porCirculo[3] === 1 ? 'lugar vale' : 'lugares valem'}
+            cerca de <strong>${formatarMoeda(r.porCirculo[3] * r.custoPorConvidado)}</strong>.</span>
+          </div>` : ''}
+
+          <div class="secao" style="margin-top:var(--e5)">
+            ${visiveis.length === 0
+              ? '<p class="secao-desc">Nenhum convidado neste filtro.</p>'
+              : `<div class="card compacto">
+                  ${visiveis.map((g) => {
+                    const st = g.status || 'pendente';
+                    const marca = st === 'confirmado' ? 'ok' : st === 'recusado' ? 'fechar' : 'relogio';
+                    return `
+                    <div class="lista-item convidado-item ${st}" style="cursor:pointer" onclick="Telas.abrirConvidado('${g.id}')">
+                      <span class="icone">${icone(marca, 17)}</span>
+                      <div class="corpo">
+                        <div class="nome">${escapar(g.nome)}${g.acompanhante ? ' <span class="chip tag">+1</span>' : ''}${g.crianca ? ' <span class="chip tag">criança</span>' : ''}</div>
+                        <div class="meta">Círculo ${g.circulo || 3}${g.lado ? ' · ' + escapar(g.lado) : ''}</div>
+                      </div>
+                      <span class="circulo-marca c${g.circulo || 3}">${g.circulo || 3}</span>
+                    </div>`;
+                  }).join('')}
+                </div>`}
+          </div>`}
+        <div class="pulo"></div>
+      </div>`;
+  },
+
   /* ================================================================= MISSÕES */
 
   missoes() {
@@ -1385,6 +1491,63 @@ const Telas = {
           ${a.categoria ? `<button class="btn btn-secundario btn-mini" style="margin-top:8px" onclick="Telas.abrirCategoria('${a.categoria}')">Abrir categoria</button>` : ''}
         </div>`).join('') + `<div class="aviso-legal">${AVISO_ESTIMATIVA}</div><div class="pulo"></div>`
     );
+  },
+
+  /* Formulário do convidado. Serve para criar e para editar: passando um
+     convidado existente, os campos vêm preenchidos e aparece o botão de
+     remover. Dois formulários quase iguais divergem com o tempo. */
+  formConvidado(g) {
+    const v = g || { nome: '', circulo: 2, lado: '', acompanhante: false, crianca: false, status: 'pendente', obs: '' };
+    const opcao = (val, rotulo, atual) => `<option value="${val}"${String(atual) === String(val) ? ' selected' : ''}>${rotulo}</option>`;
+    return `
+      <div class="campo"><label>Nome</label><input type="text" id="cv-nome" placeholder="Nome e sobrenome" value="${escapar(v.nome)}"></div>
+      <div class="campo">
+        <label>Círculo</label>
+        <select id="cv-circulo">
+          ${opcao(1, '1 — não imagino a cerimônia sem', v.circulo)}
+          ${opcao(2, '2 — convivência real nos últimos 2 anos', v.circulo)}
+          ${opcao(3, '3 — convidaria por obrigação social', v.circulo)}
+        </select>
+        <p class="ajuda">O círculo não julga ninguém. Ele existe para o corte ter critério em vez de ter culpa.</p>
+      </div>
+      <div class="grade-2">
+        <div class="campo"><label>De quem é</label>
+          <select id="cv-lado">
+            ${['', 'Noiva', 'Noivo', 'Os dois', 'Família', 'Trabalho'].map((x) => opcao(x, x || '—', v.lado)).join('')}
+          </select></div>
+        <div class="campo"><label>Confirmação</label>
+          <select id="cv-status">
+            ${opcao('pendente', 'Pendente', v.status)}
+            ${opcao('confirmado', 'Confirmado', v.status)}
+            ${opcao('recusado', 'Não vai', v.status)}
+          </select></div>
+      </div>
+      <label class="toggle"><span class="txt">Leva acompanhante<small>Conta como mais um lugar — e mais um de tudo que é servido</small></span>
+        <span class="switch"><input type="checkbox" id="cv-acompanhante"${v.acompanhante ? ' checked' : ''}><span class="trilho"></span></span></label>
+      <label class="toggle"><span class="txt">É criança<small>Buffet costuma cobrar diferente. Confirme a regra com o seu.</small></span>
+        <span class="switch"><input type="checkbox" id="cv-crianca"${v.crianca ? ' checked' : ''}><span class="trilho"></span></span></label>
+      <div class="campo"><label>Observações</label><textarea id="cv-obs" placeholder="Restrição alimentar, vem de fora, mesa...">${escapar(v.obs || '')}</textarea></div>
+      <div class="pulo"></div>
+      <button class="btn btn-primario btn-bloco" onclick="Acoes.salvarConvidado(${g ? `'${g.id}'` : 'null'})">${g ? 'Salvar alterações' : 'Adicionar à lista'}</button>
+      ${g ? `<button class="btn btn-perigo btn-bloco" style="margin-top:var(--e3)" onclick="Acoes.removerConvidado('${g.id}')">Remover da lista</button>` : ''}
+      <div class="pulo"></div>`;
+  },
+
+  abrirNovoConvidado() {
+    abrirGaveta('Adicionar convidado', 'Um nome por vez', this.formConvidado(null));
+  },
+
+  abrirConvidado(id) {
+    const g = (Store.estado.convidados || []).find((x) => x.id === id);
+    if (!g) return;
+    const custo = Motor.custoPorConvidado();
+    const lugares = 1 + (g.acompanhante ? 1 : 0);
+    const nota = custo > 0
+      ? `<div class="alerta info"><span class="ic">${icone('orcamento', 16)}</span><span>${
+          lugares > 1 ? `${g.nome.split(' ')[0]} e acompanhante ocupam <strong>2 lugares</strong>` : 'Ocupa <strong>1 lugar</strong>'
+        } — cerca de <strong>${formatarMoeda(lugares * custo)}</strong> no seu plano.</span></div>`
+      : '';
+    abrirGaveta(g.nome, `Círculo ${g.circulo || 3}`, nota + this.formConvidado(g));
   },
 
   abrirNovoFornecedor() {

@@ -140,21 +140,41 @@ const Assistente = {
     const r = Motor.resumo();
     const estrategias = Motor.estrategiasRecomendadas(4);
 
+    /*
+     * As três inegociáveis saem da lista de candidatas, e não apenas ficam
+     * mal colocadas nela. Ordenar por "muito dinheiro e pouca prioridade"
+     * já as empurrava para o fim, mas "quase nunca aparece" não é a mesma
+     * promessa que "eu não encosto" — e é a segunda que a abertura faz.
+     */
+    const protegidas = Motor.inegociaveis();
     const candidatas = Object.entries(dist)
       .map(([id, d]) => ({ id, ...d, nome: Motor.categoria(id).nome }))
-      .filter((d) => d.contratado === 0 && d.planejado > 0)
-      .sort((a, b) => b.planejado / Math.max(1, b.prioridade) - a.planejado / Math.max(1, a.prioridade))
+      .filter((d) => d.contratado === 0 && d.planejado > 0 && !protegidas.includes(d.id))
+      .sort((a, b) => {
+        /* o que ela marcou como simplificável vem primeiro: é onde ela já
+           disse que pode mexer, e procurar em outro lugar antes seria
+           ignorar uma resposta que ela deu */
+        const peso = (x) => (Motor.ehSimplificavel(x.id) ? 2.5 : 1);
+        return (b.planejado * peso(b)) / Math.max(1, b.prioridade) - (a.planejado * peso(a)) / Math.max(1, a.prioridade);
+      })
       .slice(0, 3);
 
+    const nomesProtegidos = protegidas.map((id) => Motor.categoria(id).nome);
     const linhas = [
-      'Eu procuro economia primeiro onde tem muito dinheiro e pouca prioridade — nunca começando pelo que você marcou como inegociável.',
+      nomesProtegidos.length
+        ? `Antes de tudo: **${nomesProtegidos.join(', ')}** ${nomesProtegidos.length === 1 ? 'está fora' : 'estão fora'} desta busca. ${nomesProtegidos.length === 1 ? 'É a sua inegociável' : 'São as suas inegociáveis'}, e eu só volto aqui se não sobrar alternativa em lugar nenhum.`
+        : 'Eu procuro economia primeiro onde tem muito dinheiro e pouca prioridade.',
       '**Onde eu olharia primeiro:**',
     ];
     candidatas.forEach((c) => {
+      const marca = Motor.ehSimplificavel(c.id) ? ' _Você marcou como simplificável._' : '';
       linhas.push(
-        `• ${c.nome} — ${formatarMoeda(c.planejado)} (${((c.planejado / Math.max(1, r.total)) * 100).toFixed(0)}% do orçamento) com prioridade ${c.prioridade}/10.`
+        `• ${c.nome} — ${formatarMoeda(c.planejado)} (${((c.planejado / Math.max(1, r.total)) * 100).toFixed(0)}% do orçamento) com prioridade ${c.prioridade}/10.${marca}`
       );
     });
+    if (!candidatas.length) {
+      linhas.push('Todas as categorias abertas do seu plano são inegociáveis ou já estão contratadas. Aqui não há corte indolor — o caminho é mexer no formato: convidados, período ou dia da semana.');
+    }
     linhas.push('**Estratégias que se aplicam ao seu caso:**');
     estrategias.forEach((s) => {
       const n = NIVEIS_ECONOMIA[s.nivel];

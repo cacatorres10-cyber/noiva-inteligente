@@ -13,6 +13,98 @@ const Motor = {
     return Store.estado.perfil;
   },
 
+  /*
+   * As três inegociáveis e as simplificáveis, pelo nome.
+   *
+   * O onboarding já traduzia as duas listas em nota — 10 e 9 para as três,
+   * 3 para as simplificáveis — e depois disso ninguém mais olhava para elas.
+   * O motor só via números, com duas consequências:
+   *
+   *   1. a proteção era por procuração. "Nota >= 9" pega as três, mas pega
+   *      junto qualquer categoria que ela tenha subido depois no slider — e
+   *      deixa de pegar uma das três se ela mexer para baixo sem querer;
+   *   2. o app não conseguia NOMEAR o que estava protegendo. Dizer "essa é
+   *      uma das suas três" é uma frase completamente diferente de dizer
+   *      "essa é prioridade 9/10", e é a frase que a abertura promete.
+   *
+   * Lendo a lista original, a proteção passa a ser exata e dizível.
+   */
+  inegociaveis() {
+    return (this.perfil().prioridadesTop || []).filter(Boolean);
+  },
+
+  ehInegociavel(catId) {
+    return this.inegociaveis().includes(catId);
+  },
+
+  simplificaveis() {
+    return (this.perfil().simplificaveis || []).filter(Boolean);
+  },
+
+  ehSimplificavel(catId) {
+    return this.simplificaveis().includes(catId);
+  },
+
+  /*
+   * Custo de um convidado: soma o planejado de todas as categorias que
+   * escalam com gente e divide pelo número de convidados do plano.
+   *
+   * É a conta que transforma "corta a lista" — conselho vazio — em "cada
+   * nome custa tanto, decida sabendo". Usa o planejado e não a estimativa
+   * porque o planejado é o dinheiro que ela de fato reservou.
+   */
+  custoPorConvidado() {
+    const p = this.perfil();
+    if (!p.convidados || p.convidados <= 0) return 0;
+    const dist = this.distribuir();
+    const soma = CATEGORIAS.filter((c) => c.dependeConvidados).reduce(
+      (acc, c) => acc + ((dist[c.id] && dist[c.id].planejado) || 0),
+      0
+    );
+    return soma / p.convidados;
+  },
+
+  /*
+   * Retrato da lista: quem confirmou, quem falta, quantos assentos a lista
+   * realmente ocupa e como isso se compara ao número que alimenta o plano.
+   *
+   * "Assentos" não é o mesmo que "linhas da lista": um convidado com
+   * acompanhante ocupa dois lugares e come duas vezes. Contar linhas seria
+   * subestimar o custo em exatamente o erro que mais estoura orçamento.
+   */
+  resumoConvidados() {
+    const lista = Store.estado.convidados || [];
+    const assentos = (g) => 1 + (g.acompanhante ? 1 : 0);
+
+    const conta = (filtro) => lista.filter(filtro).reduce((a, g) => a + assentos(g), 0);
+    const confirmados = conta((g) => g.status === 'confirmado');
+    const recusados = conta((g) => g.status === 'recusado');
+    const pendentes = conta((g) => g.status !== 'confirmado' && g.status !== 'recusado');
+    const total = confirmados + pendentes; /* quem recusou não ocupa lugar */
+
+    const porCirculo = { 1: 0, 2: 0, 3: 0 };
+    lista.forEach((g) => {
+      if (g.status === 'recusado') return;
+      porCirculo[g.circulo || 3] += assentos(g);
+    });
+
+    const criancas = conta((g) => g.crianca && g.status !== 'recusado');
+    const custo = this.custoPorConvidado();
+    const noPlano = this.perfil().convidados || 0;
+
+    return {
+      linhas: lista.length,
+      total, confirmados, pendentes, recusados, criancas, porCirculo,
+      custoPorConvidado: custo,
+      custoTotal: total * custo,
+      noPlano,
+      diferenca: total - noPlano,
+      /* margem de 2 assentos: divergência de um ou dois nomes é ruído de
+         cadastro, não um descompasso que mereça alerta */
+      divergente: noPlano > 0 && lista.length > 0 && Math.abs(total - noPlano) > 2,
+    };
+  },
+
   fatorRegiao(nivel) {
     const n = NIVEL_REGIAO.find((x) => x.id === (nivel || this.perfil().nivelRegiao));
     return n ? n.fator : 1;
@@ -327,14 +419,30 @@ const Motor = {
       });
     }
 
-    if (prioridade <= 4 && pctOrcamento >= 12) {
+    if (this.ehSimplificavel(catId) && pctOrcamento >= 10) {
+      sinais.push({
+        nivel: 'alto',
+        texto: `Você marcou ${cat.nome} como algo que pode ser simplificado sem dor — e esse gasto consumiria ${pctOrcamento.toFixed(0)}% do orçamento. É a maior contradição que eu vejo aqui, e o melhor lugar para procurar alternativa.`,
+      });
+    } else if (prioridade <= 4 && pctOrcamento >= 12) {
       sinais.push({
         nivel: 'alto',
         texto: `${cat.nome} está marcada como prioridade ${prioridade}/10, mas consumiria ${pctOrcamento.toFixed(0)}% do orçamento. Categorias de baixa prioridade costumam ser o melhor lugar para cortar.`,
       });
     }
 
-    if (prioridade >= 8) {
+    /*
+     * Nomear vale mais que numerar. "É uma das suas três" é a frase que a
+     * abertura do app promete; "é prioridade 9/10" é a mesma informação sem
+     * o compromisso — e sem o compromisso, a promessa não é cumprida.
+     */
+    if (this.ehInegociavel(catId)) {
+      const outras = this.inegociaveis().filter((id) => id !== catId).map((id) => this.categoria(id).nome);
+      sinais.push({
+        nivel: 'info',
+        texto: `${cat.nome} é uma das suas três inegociáveis${outras.length ? ` — junto com ${outras.join(' e ')}` : ''}. Eu não vou sugerir corte aqui enquanto existir alternativa em qualquer outro lugar.`,
+      });
+    } else if (prioridade >= 8) {
       sinais.push({
         nivel: 'info',
         texto: `${cat.nome} é prioridade ${prioridade}/10 para você. Antes de cortar aqui, procure alternativas nas categorias de prioridade mais baixa.`,
@@ -419,11 +527,19 @@ const Motor = {
           categoria: d.id,
         });
       }
-      if (d.prioridade <= 4 && pctCat > 10) {
+      /*
+       * Nunca nas três. Verba concentrada numa inegociável não é desvio —
+       * é exatamente o que ela pediu, e apontar isso como problema seria o
+       * app discutindo com a própria promessa que fez na abertura.
+       */
+      if (d.prioridade <= 4 && pctCat > 10 && !this.ehInegociavel(d.id)) {
+        const sugestao = this.ehSimplificavel(d.id)
+          ? ' Você marcou essa categoria como simplificável, então aqui a alternativa custa pouco.'
+          : ' Se precisar cortar, eu começaria por aqui antes de mexer nas suas prioridades altas.';
         achados.push({
           nivel: 'medio',
           titulo: `${d.nome} recebe mais verba do que a prioridade sugere`,
-          texto: `${d.nome} é prioridade ${d.prioridade}/10 e está com ${formatarMoeda(d.planejado)} (${pctCat.toFixed(0)}%). Se precisar cortar, eu começaria por aqui antes de mexer nas suas prioridades altas.`,
+          texto: `${d.nome} é prioridade ${d.prioridade}/10 e está com ${formatarMoeda(d.planejado)} (${pctCat.toFixed(0)}%).${sugestao}`,
           categoria: d.id,
         });
       }
@@ -829,9 +945,35 @@ const Motor = {
       if (s.id === 'data-baixa-temporada' && p.dataDefinida) score -= 60;
       if (s.id === 'dia-alternativo' && p.dataDefinida) score -= 60;
 
-      // não recomendar cortes nas 3 prioridades máximas declaradas
+      /*
+       * As três inegociáveis, pelo nome — não mais por "nota >= 9".
+       * A penalidade é maior que a antiga porque agora é certeira: antes ela
+       * podia estar punindo uma categoria que a pessoa só tinha subido no
+       * slider, e ser tímida era a defesa contra o próprio erro de mira.
+       * Estratégia leve continua passando: ela não tira nada de ninguém.
+       *
+       * Mudança de formato é exceção deliberada. Reduzir convidados, mudar
+       * a data ou mudar o estilo mexem em quase todas as categorias por
+       * arrasto de escala, não por rebaixar nenhuma delas. Quem diz que o
+       * LOCAL é inegociável está falando do espaço que quer, e cortar
+       * convidados não piora esse espaço — muitas vezes é justamente o que
+       * o torna possível. Punir essas três aqui removeria as alavancas mais
+       * fortes do app para proteger algo que elas não ameaçam.
+       */
+      const mudaFormato = (s.categorias || []).some((t) => t === 'convidados' || t === 'data' || t === 'estilo');
+      if (!mudaFormato) {
+        (s.afeta || []).forEach((catId) => {
+          if (this.ehInegociavel(catId) && s.nivel !== 'leve') score -= 70;
+        });
+      }
+
+      /*
+       * E o inverso, que não existia: o que ela marcou como simplificável é
+       * onde ela JÁ DISSE que pode mexer. Procurar dinheiro em outro lugar
+       * antes de olhar aqui é ignorar uma resposta que ela deu.
+       */
       (s.afeta || []).forEach((catId) => {
-        if ((Store.estado.prioridades[catId] || 5) >= 9 && s.nivel !== 'leve') score -= 45;
+        if (this.ehSimplificavel(catId)) score += 25;
       });
 
       return { ...s, score };

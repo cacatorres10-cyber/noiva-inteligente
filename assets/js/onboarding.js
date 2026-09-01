@@ -221,7 +221,7 @@ const Onboarding = {
             ${CATEGORIAS_PRIORIZAVEIS.map((id) => {
               const c = Motor.categoria(id);
               const ativo = this.rascunho.prioridadesTop.includes(id);
-              return `<button class="chip ${ativo ? 'ativo' : ''}" data-v="${id}" onclick="Onboarding.alternarPrioridade(this)">${c.icone} ${c.nome}</button>`;
+              return `<button class="chip ${ativo ? 'ativo' : ''}" data-v="${id}" onclick="Onboarding.alternarPrioridade(this)">${icone(c.icone, 15)} ${c.nome}</button>`;
             }).join('')}
           </div>
           <p class="ajuda" id="ob-prio-msg" style="margin-top:12px">${this.rascunho.prioridadesTop.length}/3 selecionadas</p>`,
@@ -238,7 +238,7 @@ const Onboarding = {
               .map((id) => {
                 const c = Motor.categoria(id);
                 const ativo = this.rascunho.simplificaveis.includes(id);
-                return `<button class="chip ${ativo ? 'ativo' : ''}" data-v="${id}" onclick="Onboarding.alternarSimplificavel(this)">${c.icone} ${c.nome}</button>`;
+                return `<button class="chip ${ativo ? 'ativo' : ''}" data-v="${id}" onclick="Onboarding.alternarSimplificavel(this)">${icone(c.icone, 15)} ${c.nome}</button>`;
               })
               .join('')}
           </div>

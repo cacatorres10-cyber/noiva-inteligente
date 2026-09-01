@@ -96,6 +96,75 @@ const Acoes = {
 
   /* ------------------------------------------------------ fornecedores */
 
+  /* ------------------------------------------------------- convidados */
+
+  salvarConvidado(id) {
+    const nome = $('#cv-nome').value.trim();
+    if (!nome) {
+      toast('Preciso pelo menos do nome.');
+      return;
+    }
+    const dados = {
+      nome,
+      circulo: Number($('#cv-circulo').value) || 3,
+      lado: $('#cv-lado').value,
+      status: $('#cv-status').value,
+      acompanhante: $('#cv-acompanhante').checked,
+      crianca: $('#cv-crianca').checked,
+      obs: $('#cv-obs').value.trim(),
+    };
+
+    if (id) {
+      const g = Store.estado.convidados.find((x) => x.id === id);
+      if (g) Object.assign(g, dados);
+    } else {
+      Store.estado.convidados.push(Object.assign({ id: novoId('conv'), data: new Date().toISOString() }, dados));
+    }
+
+    Store.salvar();
+    fecharGaveta();
+    toast(id ? 'Convidado atualizado.' : 'Adicionado à lista.');
+    App.atualizar();
+  },
+
+  removerConvidado(id) {
+    const g = (Store.estado.convidados || []).find((x) => x.id === id);
+    if (!g) return;
+    if (!confirm(`Remover ${g.nome} da lista?`)) return;
+    Store.estado.convidados = Store.estado.convidados.filter((x) => x.id !== id);
+    Store.salvar();
+    fecharGaveta();
+    toast('Removido da lista.');
+    App.atualizar();
+  },
+
+  filtrarConvidados(filtro) {
+    Store.estado._filtroConvidados = filtro;
+    Telas.renderizar('convidados', { filtro });
+  },
+
+  /*
+   * Leva o número real da lista para o plano.
+   *
+   * Fica como botão e não como sincronização automática porque mudar o
+   * número de convidados recalcula nove categorias de uma vez. Uma lista em
+   * construção mexeria no orçamento inteiro a cada nome digitado, e ela
+   * perderia a noção de qual número está sendo usado nas contas.
+   */
+  aplicarListaAoPlano() {
+    const r = Motor.resumoConvidados();
+    if (!r.total) {
+      toast('A lista ainda está vazia.');
+      return;
+    }
+    const antes = Store.estado.perfil.convidados;
+    Store.estado.perfil.convidados = r.total;
+    Store.registrarHistorico('Convidados atualizados pela lista', `${antes} → ${r.total}`);
+    Store.salvar();
+    toast(`Plano recalculado para ${r.total} convidados.`);
+    App.atualizar();
+  },
+
   salvarFornecedor() {
     const nome = $('#f-nome').value.trim();
     const preco = Number($('#f-preco').value) || 0;

@@ -67,6 +67,19 @@ function estadoInicial() {
     orcamento: {},        // { categoriaId: { planejado, contratado, observacoes } }
     despesas: [],         // { id, categoria, descricao, valor, tipo:'contratado'|'pago', data, vencimento, parcelas, fornecedorId, observacoes }
     fornecedores: [],     // ver criarFornecedor()
+    /*
+     * Convidados por nome, não só o total.
+     *
+     * O app sempre soube que cada convidado custa dinheiro, mas o número era
+     * solto: "90 convidados" sem nenhum lugar para colocar os 90 nomes. O
+     * método de corte que o assistente ensina — círculo 1, 2 e 3 — não tinha
+     * onde ser executado, e a confirmação de presença não tinha onde existir.
+     *
+     * circulo  1 = não imagina a cerimônia sem  ·  2 = convivência real
+     *          3 = convidaria por obrigação social
+     * status   pendente | confirmado | recusado
+     */
+    convidados: [],       // { id, nome, circulo, lado, acompanhante, crianca, status, obs }
     missoes: {},          // { missaoId: { status, economiaConfirmada, nota } }
     tarefas: {},          // { tarefaId: { feita, notas } }
     cenarios: [],         // { id, nome, params }
@@ -186,6 +199,9 @@ const Store = {
 
   garantirDefaults() {
     const e = this.estado;
+    /* backup antigo não tem a lista; sem isto, quem restaura um arquivo de
+       antes deste módulo abre a tela e recebe um erro em vez da tela vazia */
+    if (!Array.isArray(e.convidados)) e.convidados = [];
     CATEGORIAS.forEach((c) => {
       if (e.prioridades[c.id] === undefined) e.prioridades[c.id] = 5;
       if (e.categoriasAtivas[c.id] === undefined) e.categoriasAtivas[c.id] = true;

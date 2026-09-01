@@ -61,6 +61,7 @@ const TELAS_NAV = [
 
 const MENU_EXTRA = [
   { id: 'prioridades', nome: 'Prioridades', ic: 'estrela', desc: 'O que é inegociável para você' },
+  { id: 'convidados', nome: 'Lista de convidados', ic: 'pessoas', desc: 'Nomes, círculos e confirmação' },
   { id: 'fornecedores', nome: 'Fornecedores', ic: 'proposta', desc: 'Cadastrar e comparar propostas' },
   { id: 'cenarios', nome: 'Simulador de cenários', ic: 'balanca', desc: 'Comparar dois formatos de casamento' },
   { id: 'cronograma', nome: 'Cronograma', ic: 'calendario', desc: 'O que fazer em cada fase' },

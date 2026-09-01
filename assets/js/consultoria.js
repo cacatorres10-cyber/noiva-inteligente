@@ -62,11 +62,12 @@ _Círculo 1_ — quem você não consegue imaginar a cerimônia sem.
 _Círculo 2_ — convivência real nos últimos dois anos.
 _Círculo 3_ — quem você chamaria por obrigação social.
 
-Comece pelo três. E o teste que resolve os casos difíceis: **se essa pessoa não puder vir, isso muda alguma coisa no seu dia?** Se a resposta demorar, ela é círculo três.
+A lista de convidados do app tem esse campo em cada nome, e mostra quanto vale cada círculo em dinheiro. Comece pelo três. E o teste que resolve os casos difíceis: **se essa pessoa não puder vir, isso muda alguma coisa no seu dia?** Se a resposta demorar, ela é círculo três.
 
 Duas armadilhas que eu vejo sempre: acompanhante automático para solteiro (isso dobra convidado silenciosamente) e criança sem regra definida. Decida os dois **antes** de mandar convite, porque depois de mandado não tem volta.`;
     },
     acoes: [
+      { texto: 'Montar a lista por círculo', tela: 'convidados' },
       { texto: 'Simular com menos convidados', tela: 'cenarios' },
       { texto: 'E se a família não aceitar?', pergunta: 'Como lidar com a família sobre a lista de convidados?' },
     ],
@@ -384,8 +385,8 @@ Atenção a uma confusão comum: **cerimônia e casamento civil são coisas sepa
 
 **Deixe explícito no convite** se crianças são bem-vindas e se o convite inclui acompanhante. Não escrever isso é a origem de metade dos convidados extras.`,
     acoes: [
+      { texto: 'Controlar confirmações', tela: 'convidados' },
       { texto: 'Simular com menos convidados', tela: 'cenarios' },
-      { texto: 'Ver missões', tela: 'missoes' },
     ],
   },
 
