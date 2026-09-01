@@ -136,11 +136,44 @@ const Motor = {
       soma += w;
     });
 
+    /*
+     * Arredondamento por maior resto.
+     *
+     * Arredondando cada categoria por conta própria, a soma da coluna não
+     * fechava com o distribuível: 21 arredondamentos independentes erram
+     * alguns reais para baixo ou para cima, e quem somasse a tela encontrava
+     * dinheiro que não existe em lugar nenhum. Num app cuja promessa é
+     * "nenhuma conta é caixa-preta", coluna que não fecha custa confiança.
+     *
+     * Então arredonda para baixo, mede quanto sobrou do alvo e devolve um
+     * real de cada vez para as categorias de maior parte fracionária — que
+     * são exatamente as que mais perderam no corte.
+     */
+    const alvo = Math.round(restante);
+    const bruto = {};
+    abertas.forEach((c) => {
+      bruto[c.id] = soma > 0 ? (restante * pesos[c.id]) / soma : 0;
+    });
+    const ajustado = {};
+    let distribuido = 0;
+    abertas.forEach((c) => {
+      ajustado[c.id] = Math.floor(bruto[c.id]);
+      distribuido += ajustado[c.id];
+    });
+    const sobra = alvo - distribuido;
+    if (sobra > 0) {
+      abertas
+        .slice()
+        .sort((a, b) => (bruto[b.id] % 1) - (bruto[a.id] % 1))
+        .slice(0, sobra)
+        .forEach((c) => (ajustado[c.id] += 1));
+    }
+
     const resultado = {};
     ativas.forEach((c) => {
       const contratado = contratadoPorCat[c.id] || 0;
       const manual = e.orcamento[c.id] && e.orcamento[c.id].planejado;
-      const sugerido = contratado > 0 ? contratado : soma > 0 ? (restante * pesos[c.id]) / soma : 0;
+      const sugerido = contratado > 0 ? contratado : ajustado[c.id] || 0;
       resultado[c.id] = {
         sugerido: Math.round(sugerido),
         planejado: manual !== null && manual !== undefined && manual !== '' ? Number(manual) : Math.round(sugerido),
@@ -621,8 +654,28 @@ const Motor = {
       });
     }
 
-    if (r.contratado > r.distribuivel && r.total > 0) {
-      lista.push({ nivel: 'alto', texto: 'O total contratado já entrou na sua margem de segurança.', acao: { tela: 'orcamento' } });
+    /*
+     * Duas situações diferentes, que estavam recebendo a mesma frase.
+     *
+     * Passar do distribuível significa começar a comer a reserva — é sério,
+     * mas ainda cabe no orçamento. Passar do orçamento inteiro é outra coisa,
+     * e dizer "entrou na sua margem de segurança" nesse caso era errado duas
+     * vezes: subestimava o problema e, com margem zerada, falava de uma
+     * margem que não existe. Quem está R$ 1.000 acima do teto precisa ler
+     * o número, não um eufemismo.
+     */
+    if (r.total > 0 && r.contratado > r.total) {
+      lista.push({
+        nivel: 'alto',
+        texto: `O contratado (${formatarMoeda(r.contratado)}) ultrapassou o seu orçamento em ${formatarMoeda(r.contratado - r.total)}. Antes de fechar mais alguma coisa, vale rever o que ainda está em aberto.`,
+        acao: { tela: 'orcamento' },
+      });
+    } else if (r.total > 0 && r.contratado > r.distribuivel && r.reserva > 0) {
+      lista.push({
+        nivel: 'alto',
+        texto: `O total contratado já entrou na sua margem de segurança — sobram ${formatarMoeda(r.total - r.contratado)} de reserva.`,
+        acao: { tela: 'orcamento' },
+      });
     }
 
     if (r.total > 0 && r.estimativaBottomUp > r.total * 1.05) {
